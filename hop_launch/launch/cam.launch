@@ -1,0 +1,6 @@
+<launch>
+    <include file="$(find hop_launch)/launch/primesense.launch">
+        <arg name="camera" value="primesense" />
+    </include>
+    <!--<node ns="primesense/rgb" name="rectify" pkg="image_proc" type="image_proc" />-->
+</launch>
