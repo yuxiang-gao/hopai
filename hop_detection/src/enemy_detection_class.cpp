@@ -15,7 +15,7 @@ EnemyDetection::EnemyDetection (ros::NodeHandle *nh, ros::NodeHandle *nh_priv, c
 {
     ROS_DEBUG_ONCE_NAMED(name_, "Starting obstacle avoidance.");
 
-    image_sub_ = it_.subscribe("/primesense/rgb/image_rect_color", 1, &ObstacleDetection::imageCallback, this);
+    image_sub_ = it_.subscribe("/primesense/rgb/image_rect_color", 1, &EnemyDetection::imageCallback, this);
     // nh_priv_.param("openni_enc", openni_enc_, openni_enc_);
     // image_pub_ = it_.advertise("out", 1);
     //obstacle_pub_ = nh_.advertise<nav_msgs::OccupancyGrid>("/hd/perception/stereo_obstacle", 10);

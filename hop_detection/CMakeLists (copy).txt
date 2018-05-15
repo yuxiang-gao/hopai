@@ -143,13 +143,13 @@ include_directories(
 #target_link_libraries(obstacle_detection_class ${catkin_LIBRARIES})
 #add_dependencies(obstacle_detection_class ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_library(libenemy_detection src/enemy_detection_nodelet.cpp src/enemy_detection_class.cpp)
-target_link_libraries(libenemy_detection ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} dlib::dlib)
-add_dependencies(libenemy_detection ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_library(enemy_detection_nodelet src/enemy_detection_nodelet.cpp src/enemy_detection_class.cpp)
+target_link_libraries(enemy_detection_nodelet ${catkin_LIBRARIES} ${PCL_LIBRARIES} ${OpenCV_LIBRARIES} dlib::dlib)
+add_dependencies(enemy_detection_nodelet ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(enemy_detection_node src/enemy_detection.cpp)
-target_link_libraries(enemy_detection_node libenemy_detection ${catkin_LIBRARIES})
-add_dependencies(enemy_detection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+#add_executable(obstacle_detection_node src/obstacle_detection.cpp)
+#target_link_libraries(obstacle_detection_node obstacle_detection_class ${catkin_LIBRARIES})
+#add_dependencies(obstacle_detection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 ## Declare a C++ library
@@ -197,7 +197,7 @@ add_dependencies(enemy_detection_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 # )
 
 ## Mark executables and/or libraries for installation
-install(TARGETS libenemy_detection enemy_detection_node
+install(TARGETS enemy_detection_nodelet
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
