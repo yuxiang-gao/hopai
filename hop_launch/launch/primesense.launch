@@ -49,7 +49,7 @@
   <arg name="hw_registered_processing"        default="false" unless="$(arg depth_registration)" />
   <arg name="sw_registered_processing"        default="true" unless="$(arg depth_registration)" />
 
-  <arg name="respawn" default="false"
+  <arg name="respawn" default="true"
        doc="Disable bond topics by default" />
 
   <arg name="num_worker_threads" default="4"

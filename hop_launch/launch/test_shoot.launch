@@ -1,0 +1,5 @@
+<launch>
+  <include file="$(find hop_launch)/launch/primesense.launch" />
+  <include file="$(find hop_launch)/launch/aruco_detect.launch" />
+  <!--node name="aiming" pkg="hop_launch" type="aim_gim.py" output="screen" /-->
+</launch>
