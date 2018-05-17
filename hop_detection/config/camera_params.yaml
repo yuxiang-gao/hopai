@@ -1,0 +1,32 @@
+cameras:
+    camera_0: #LEFT
+        camera_id: 0
+        camera_matrix: []
+        camera_distortion: []
+        resolution:
+            width: 640
+            height: 480
+
+    camera_1: #right
+        camera_id: 1
+        camera_matrix: []
+        camera_distortion: []
+        resolution:
+            width: 640
+            height: 480
+
+    camera_2: #mid
+        camera_id: 2
+        camera_matrix: []
+        camera_distortion: []
+        resolution:
+            width: 640
+            height: 480
+
+    camera_3: #ps
+        camera_id: 3
+        camera_matrix: []
+        camera_distortion: []
+        resolution:
+            width: 640
+            height: 480

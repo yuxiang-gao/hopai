@@ -18,12 +18,11 @@ namespace hop_detection
 {
 namespace object_detectors
 {
-typedef dlib::scan_fhog_pyramid<dlib::pyramid_down<6> > image_scanner_type;
-typedef dlib::cv_image<dlib::bgr_pixel> cv_image_type;
 // TODO: scan_image_boxes
 class FHOGObjectDetector
 {
 public:
+    typedef boost::shared_ptr<FHOGObjectDetector> Ptr;
     FHOGObjectDetector(std::vector<std::string>& detectors, bool display);
 	void detect(const cv::Mat& image_in);
 	void display();
@@ -33,6 +32,9 @@ public:
     }
 	~FHOGObjectDetector() {};
 private:
+    typedef dlib::scan_fhog_pyramid<dlib::pyramid_down<6> > image_scanner_type;
+    typedef dlib::cv_image<dlib::bgr_pixel> cv_image_type;
+    
 	std::vector<dlib::object_detector<image_scanner_type> > detectors_; // list of detectors
 	std::vector<dlib::rectangle> detections_; //detect results
 	boost::shared_ptr<cv_image_type> image_ptr_;

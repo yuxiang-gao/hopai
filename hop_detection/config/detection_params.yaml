@@ -1,0 +1,49 @@
+enemy_detection:
+    fhog_object_detector:
+        debug: true
+        display: true
+        threshold: 0
+        detectors: ["svms/"]
+
+armor_detection:
+    color_detection:
+        debug: true
+        display: true
+
+    armor_size:
+        width: 110
+        height: 60
+
+    red_range_1:
+        lower:
+            H: 0
+            S: 50
+            V: 100
+        upper:
+            H: 15
+            S: 255
+            V: 255
+    red_range_2:
+        lower:
+            H: 240
+            S: 50
+            V: 100
+        upper:
+            H: 255
+            S: 255
+            V: 255
+
+            
+
+cameras:
+    camera_left:
+        frame_id: "camera_left_frame"
+
+    camera_right:
+        frame_id: "camera_right_frame"
+
+    camera_middle:
+        frame_id: "camera_middle_frame"
+
+    primesense:
+        frame_id: "primesense_optical_frame"

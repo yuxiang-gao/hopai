@@ -88,6 +88,8 @@
   <build_depend>eigen_catkin</build_depend>
   <build_depend>opencv3_catkin</build_depend>
 
+  <build_depend>hop_msgs</build_depend>
+
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <nodelet plugin="${prefix}/nodelet_plugins.xml" />

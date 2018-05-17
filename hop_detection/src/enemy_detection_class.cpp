@@ -14,9 +14,7 @@ EnemyDetection::EnemyDetection (ros::NodeHandle *nh, ros::NodeHandle *nh_priv, c
     name_(name)
 {
     ROS_DEBUG_ONCE_NAMED(name_, "Starting obstacle avoidance.");
-    // start dynamic reconfigure 
-    dyn_cfg_f_ = boost::bind(&EnemyDetection::dynCfgCallback, this, _1, _2);
-    dyn_cfg_server_.setCallback(dyn_cfg_f_);
+    
 
     image_sub_ = it_.subscribe("/primesense/rgb/image_rect_color", 1, &EnemyDetection::imageCallback, this);
     // nh_priv_.param("openni_enc", openni_enc_, openni_enc_);
@@ -52,9 +50,5 @@ void EnemyDetection::imageCallback(const sensor_msgs::ImageConstPtr& msg)
 
 } // image_callback
 
-void EnemyDetection::dynCfgCallback(hop_detection::HopDetectionConfig& config, uint32_t level)
-{
-	
-}
 
 } // namespace hd_depth
