@@ -5,9 +5,9 @@ namespace hop_detection
 {
 namespace armor_detectors
 {
-ColorDetection::ColorDetection(int cam_id):
-    pnh_ptr_(new ros::NodeHandle("~armor_detection")),
-    nh_ptr_(new ros::NodeHandle),
+ColorDetection::ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id):
+    nh_ptr_(boost::make_shared<ros::NodeHandle>(nh)),
+    pnh_ptr_(boost::make_shared<ros::NodeHandle>(pnh, "armor_detection")),
     camera_id_(cam_id),
     name_("color_detection"),
     debug_(true),
@@ -25,34 +25,34 @@ ColorDetection::ColorDetection(int cam_id):
 
 void onInit()
 {
-    nh_ptr_.getParam("cameras/camera_" + camera_id_.c_str() + "/camera_matrix", camera_matrix_);
-    nh_ptr_.getParam("cameras/camera_" + camera_id_.c_str() + "/camera_distortion", camera_distortion_);
-    pnh_ptr_.getParam(name_ + "/debug", debug_);
-    pnh_ptr_.getParam(name_ + "/display", display_);
+    nh_ptr_->getParam("cameras/camera_" + camera_id_.c_str() + "/camera_matrix", camera_matrix_);
+    nh_ptr_->getParam("cameras/camera_" + camera_id_.c_str() + "/camera_distortion", camera_distortion_);
+    pnh_ptr_->getParam(name_ + "/debug", debug_);
+    pnh_ptr_->getParam(name_ + "/display", display_);
     // get armor params
     double width;
     double height;
-    pnh_ptr_.getParam("armor_size/width", width);
-    pnh_ptr_.getParam("armor_size/height", height);
+    pnh_ptr_->getParam("armor_size/width", width);
+    pnh_ptr_->getParam("armor_size/height", height);
     solveArmorCoordinate(width, height);
     int h;
     int s;
     int v;
-    pnh_ptr_.getParam("red_range_1/lower/H", h);
-    pnh_ptr_.getParam("red_range_1/lower/S", s);
-    pnh_ptr_.getParam("red_range_1/lower/V", v);
-    red_range_.push_back(cv::Scalar(h, s, v));
-    pnh_ptr_.getParam("red_range_1/upper/H", h);
-    pnh_ptr_.getParam("red_range_1/upper/S", s);
-    pnh_ptr_.getParam("red_range_1/upper/V", v);
-    red_range_.push_back(cv::Scalar(h, s, v));
-    pnh_ptr_.getParam("red_range_2/lower/H", h);
-    pnh_ptr_.getParam("red_range_2/lower/S", s);
-    pnh_ptr_.getParam("red_range_2/lower/V", v);
-    red_range_.push_back(cv::Scalar(h, s, v));
-    pnh_ptr_.getParam("red_range_2/upper/H", h);
-    pnh_ptr_.getParam("red_range_2/upper/S", s);
-    pnh_ptr_.getParam("red_range_2/upper/V", v);
+    pnh_ptr_->getParam("red_range_1/lower/H", h);
+    pnh_ptr_->getParam("red_range_1/lower/S", s);
+    pnh_ptr_->getParam("red_range_1/lower/V", v);
+    red_range_->push_back(cv::Scalar(h, s, v));
+    pnh_ptr_->getParam("red_range_1/upper/H", h);
+    pnh_ptr_->getParam("red_range_1/upper/S", s);
+    pnh_ptr_->getParam("red_range_1/upper/V", v);
+    red_range_->push_back(cv::Scalar(h, s, v));
+    pnh_ptr_->getParam("red_range_2/lower/H", h);
+    pnh_ptr_->getParam("red_range_2/lower/S", s);
+    pnh_ptr_->getParam("red_range_2/lower/V", v);
+    red_range_->push_back(cv::Scalar(h, s, v));
+    pnh_ptr_->getParam("red_range_2/upper/H", h);
+    pnh_ptr_->getParam("red_range_2/upper/S", s);
+    pnh_ptr_->getParam("red_range_2/upper/V", v);
     red_range_.push_back(cv::Scalar(h, s, v));
 }
 

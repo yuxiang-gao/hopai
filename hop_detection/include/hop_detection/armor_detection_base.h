@@ -31,7 +31,7 @@ public:
     typedef boost::shared_ptr<ArmorDetectionBase> Ptr;
     ArmorDetectionBase() {};
     virtual bool updateFrame(const cv::Mat& image_in);
-	virtual DetectionResult detectArmor(double &distance, double &pitch, double &yaw) {};
+	virtual ErrorInfo detectArmor(double &distance, double &pitch, double &yaw) {};
 	virtual void display() {};
 	virtual ~ArmorDetectionBase() = default;;
 

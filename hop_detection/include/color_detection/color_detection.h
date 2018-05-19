@@ -69,7 +69,7 @@ struct ColorDetectionParams
 class ColorDetection: public ArmorDetectionBase
 {
 public:
-    ColorDetection(int cam_id);
+    ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id);
     void onInit();
     void setDebug(bool debug)
     {
@@ -88,7 +88,7 @@ public:
 
     bool updateFrame(const cv::Mat& image_in) override;
     
-    DetectionResult detectArmor(double &distance, double &pitch, double &yaw) override;
+    ErrorInfo detectArmor(double &distance, double &pitch, double &yaw) override;
     
     void extractRed(const cv::Mat &src);
 

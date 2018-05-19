@@ -32,6 +32,15 @@
         "utility": "cpp",
         "valarray": "cpp",
         "atomic": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "__mutex_base": "cpp",
+        "memory": "cpp",
+        "mutex": "cpp",
+        "random": "cpp",
+        "__functional_03": "cpp",
+        "functional": "cpp",
+        "slist": "cpp",
+        "__bit_reference": "cpp",
+        "iosfwd": "cpp"
     }
 }
