@@ -5,9 +5,9 @@ namespace hop_detection
 {
 namespace armor_detectors
 {
-ColorDetection::ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id):
-    nh_ptr_(boost::make_shared<ros::NodeHandle>(nh)),
-    pnh_ptr_(boost::make_shared<ros::NodeHandle>(pnh, "armor_detection")),
+ColorDetection::ColorDetection(ros::NodeHandle *nh, ros::NodeHandle *pnh, int cam_id):
+    nh_ptr_(boost::make_shared<ros::NodeHandle>(*nh)),
+    pnh_ptr_(boost::make_shared<ros::NodeHandle>(*pnh, "armor_detection")),
     camera_id_(cam_id),
     name_("color_detection"),
     debug_(true),
@@ -79,8 +79,8 @@ void ColorDetection::dynCfgCallback(hop_detection::HopDetectionConfig& config, u
 
 bool ColorDetection::updateFrame(const cv::Mat& image_in)
 {
-    if (debug_)
-        TIMER_START(updateFrame);
+    // if (debug_)
+    //     TIMER_START(updateFrame);
     if (!image_in.empty()) 
     {
         src_img_ = image_in;
@@ -99,10 +99,25 @@ bool ColorDetection::updateFrame(const cv::Mat& image_in)
         }
     } else {
         ROS_DEBUG_NAMED(name_, "Waiting for camera driver...");
+        return false;
     }
-    if (debug_)
-        TIMER_END(updateFrame);
+    // if (debug_)
+    //     TIMER_END(updateFrame);
+    return true;
 
+}
+
+bool updateDepth(const cv::Mat& depth_in)
+{
+    if (!depth_in.empty()) 
+    {
+        depth_img_ = depth_in;
+        depth_updated_ = true;
+    } else {
+        ROS_DEBUG_NAMED(name_, "Waiting for depth...");
+        return false;
+    }
+    return true;
 }
 
 ErrorInfo ColorDetection::detectArmor(double &distance, double &pitch, double &yaw)
@@ -125,13 +140,15 @@ ErrorInfo ColorDetection::detectArmor(double &distance, double &pitch, double &y
         ArmorInfo final_armor = selectFinalArmor(armors);
         calcControlInfo(final_armor, distance, pitch, yaw, 10);
     }
+    else
+        return ErrorInfo(hop_detection::common::Error)
     lights_.clear();
     armors_.clear();
     
     if (debug_)
         TIMER_END(detectArmor);
 
-    return error_info_
+    return ErrorInfo(hop_detection::common::OK)
 }
 
 cv::Mat ColorDetection::extractRed(const cv::Mat &src)
@@ -354,7 +371,13 @@ void ColorDetection::calcControlInfo(const ArmorInfo & armor,
     pitch = pitch * 180 / M_PI;
     yaw   = yaw * 180 / M_PI;
 
-    distance = sqrt(tvec.at<double>(0)*tvec.at<double>(0) + tvec.at<double>(2)*tvec.at<double>(2));
+    if (depth_updated_)
+    {
+        distance = (double)(depth_img_.ptr<float> ( armor.vertex.center.x )[armor.vertex.center.y]) / 1000; 
+        depth_updated_ = false;
+    }
+    else
+        distance = sqrt(tvec.at<double>(0)*tvec.at<double>(0) + tvec.at<double>(2)*tvec.at<double>(2));
 }
 
 void ColorDetection::calcArmorInfo(std::vector<cv::Point2f> &armor_points, cv::RotatedRect left_light, cv::RotatedRect right_light)

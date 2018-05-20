@@ -5,6 +5,7 @@
 #include "common/timer.h"
 #include "common/log.h"
 
+#include <boost/shared_ptr.h>
 #include <sensor_msgs/CameraInfo.h>
 
 #include <vector>
@@ -69,7 +70,8 @@ struct ColorDetectionParams
 class ColorDetection: public ArmorDetectionBase
 {
 public:
-    ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id);
+    typedef boost::shared_ptr<ColorDetection> Ptr;
+    ColorDetection(ros::NodeHandle *nh, ros::NodeHandle *pnh, int cam_id);
     void onInit();
     void setDebug(bool debug)
     {
@@ -87,6 +89,8 @@ public:
     }
 
     bool updateFrame(const cv::Mat& image_in) override;
+
+    bool updateDepth(const cv::Mat& depth_in);
     
     ErrorInfo detectArmor(double &distance, double &pitch, double &yaw) override;
     
@@ -163,6 +167,7 @@ private:
     bool debug_, display_;
     int enemy_color_;
     bool has_depth_;
+    bool depth_updated_;
 
     cv::Mat src_img_;
     cv::Mat hsv_img_;

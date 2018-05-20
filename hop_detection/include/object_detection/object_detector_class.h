@@ -11,9 +11,10 @@ namespace object_detectors
 class ObjectDetectorClass
 {
 public:
-    ObjectDetectorClass(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id):
-        nh_ptr_(boost::make_shared<ros::NodeHandle>(nh)),
-        pnh_ptr_(boost::make_shared<ros::NodeHandle>(pnh, "enemy_detection")),
+    typedef boost::shared_ptr<ObjectDetectorClass> Ptr;
+    ObjectDetectorClass(ros::NodeHandle *nh, ros::NodeHandle *pnh, int cam_id):
+        nh_ptr_(boost::make_shared<ros::NodeHandle>(*nh)),
+        pnh_ptr_(boost::make_shared<ros::NodeHandle>(*pnh, "enemy_detection")),
         camera_id_(cam_id),
         ns_("fhog_object_detector")
 
@@ -38,11 +39,17 @@ public:
         tracking_ptr_ = boost::make_shared<TrackingSystem>(2);
     }
 
-    void detect(const cv::Mat& image_in)
+    std::vector<cv::Rect> detect(const cv::Mat& image_in)
     {
         std::vector<dlib::rectangle> detections = tracking_ptr_->update(image_in, detector_ptr_->detect(image_in));
+        std::vector<cv::Rect> cv_detections;
+        for (auto & d : detections)
+        {
+            cv_detections.push_back(Utils::dRectToCvRect(d));
+        }
         if (display_)
             detector_ptr_->dispaly(detections;
+        return cv_detections;
     }
 private:
     ros::NodeHandlePtr nh_ptr_;
