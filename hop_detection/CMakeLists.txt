@@ -6,14 +6,24 @@ add_subdirectory(/home/nvidia/dlib dlib_build)
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+find_package(Boost REQUIRED COMPONENTS system)
+#find_package(Eigen 3.3 REQUIRED)
+
 find_package(catkin_simple REQUIRED)
 
 catkin_simple()
 
+cs_add_library(libobject_detector  include/object_detection/object_detector_class.cpp include/object_detection/fhog_object_detector/fhog_object_detector.cpp include/object_detection/tracking/multi_track.cpp)
+target_link_libraries(libobject_detector dlib::dlib  ${OpenCV_LIBRARIES})
+
+cs_add_library(libarmor_detector include/color_detection/color_detection.cpp)
+target_link_libraries(libarmor_detector ${OpenCV_LIBRARIES})
+
 cs_add_library(libenemy_detection src/enemy_detection_nodelet.cpp src/enemy_detection_class.cpp)
-target_link_libraries(libenemy_detection dlib::dlib)
+target_link_libraries(libenemy_detection libobject_detector libarmor_detector dlib::dlib ${OpenCV_LIBRARIES})
+
 cs_add_executable(enemy_detection_node src/enemy_detection.cpp)
-target_link_libraries(enemy_detection_node libenemy_detection dlib::dlib)
+target_link_libraries(enemy_detection_node libenemy_detection dlib::dlib ${OpenCV_LIBRARIES})
 
 cs_install()
 

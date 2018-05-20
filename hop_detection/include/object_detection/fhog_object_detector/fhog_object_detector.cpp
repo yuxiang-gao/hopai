@@ -1,10 +1,10 @@
-#include "fhog_object_detector/fhog_object_detector.h"
+#include "object_detection/fhog_object_detector/fhog_object_detector.h"
 
 namespace hop_detection
 {
 namespace object_detectors
 {
-FHOGObjectDetector::FHOGObjectDetector(std::vector<std::string>& detectors_path, std:string display):
+FHOGObjectDetector::FHOGObjectDetector(std::vector<std::string>& detectors_path, bool display):
     display_(display),
     threshold_(0.0)
 {
@@ -23,7 +23,7 @@ std::vector<dlib::rectangle> FHOGObjectDetector::detect(const cv::Mat& image_in)
 {
     std::vector<dlib::rectangle> detections;
     image_ = image_in;
-    detections = dlib::evaluate_detectors(detectors_, *image_, threshold_);
+    detections = dlib::evaluate_detectors(detectors_, image_, threshold_);
     filterDetections(detections);
     detections_ = detections;
     return detections;
@@ -33,7 +33,7 @@ void FHOGObjectDetector::filterDetections(std::vector<dlib::rectangle>& detectio
 {
     if (detections.size() > 1)
     {
-        for (auto iter = detections.begin() + 1; iter != detections.end(); ) {
+        for (auto iter = detections.begin() + 1; iter != detections.end(); ) 
         {
             if (Utils::computeIOU(detections_[0], *iter) > 0.8) // overlapped
             {
@@ -45,13 +45,13 @@ void FHOGObjectDetector::filterDetections(std::vector<dlib::rectangle>& detectio
     } 
 }
 
-void FHOGObjectDetector::display(std::vector<dlib::rectangle> detections)
+void FHOGObjectDetector::display(std::vector<dlib::rectangle>& detections)
 {
-	if (dispaly_)
+	if (display_)
 	{
 		// Display it all on the screen
 		win_.clear_overlay();
-		win_.set_image(*image_ptr_);
+		win_.set_image(image_);
 		win_.add_overlay(detections, dlib::rgb_pixel(255,0,0));
 	}
 }

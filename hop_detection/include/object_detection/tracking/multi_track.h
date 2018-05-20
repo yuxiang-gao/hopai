@@ -8,10 +8,13 @@
 #include <dlib/opencv.h>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/tracking.hpp>
 #include <opencv2/core/ocl.hpp>
+
+#include "object_detection/util.h"
 
 namespace hop_detection
 {
@@ -48,7 +51,7 @@ public:
     typedef boost::shared_ptr<SingleTracker> Ptr;
     /* Member Initializer & Constructor*/
     SingleTracker()//, cv::Scalar _color)
-        : target_id(0), 
+        : //target_id(0), 
         confidence(0), 
         is_tracking_started(false), 
         use_opencv(false)
@@ -60,16 +63,16 @@ public:
     /* Get Function */
     int			getOutOfFrameCounter() { return this->out_of_frame_counter; }
     bool        getIsInsideFrame() { return this->is_inside_frame; }
-    int			getTargetID() { return this->target_id; }
+    //int			getTargetID() { return this->target_id; }
     cv::Rect	getRect() { return this->rect; }
-    dlib::rectangle getDlibRect() { return Util::cvRectToDlibRect(this->rect); }
+    dlib::rectangle getDlibRect() { return Utils::cvRectToDlibRect(this->rect); }
     cv::Point	getCenter() { return this->center; }
     double		getConfidence() { return this->confidence; }
     bool		getIsTrackingStarted() { return this->is_tracking_started; }
     //cv::Scalar	getColor() { return this->color; }
 
     /* Set Function */
-    void setTargetId(int _target_id) { this->target_id = _target_id; }
+    //void setTargetId(int _target_id) { this->target_id = _target_id; }
     void setRect(cv::Rect _rect) { this->rect = _rect; }
     void setRect(cv::Rect2d _rect) { this->rect = _rect; }
     void setRect(dlib::drectangle _drect) { this->rect = cv::Rect(_drect.tl_corner().x(), _drect.tl_corner().y(), _drect.width(), _drect.height()); }
@@ -93,10 +96,10 @@ public:
 
     /* Core Function */
     // Initialize
-    bool initTracking(cv::Mat& _mat_img, cv::Rect _init_rect);
+    bool initTracking(const cv::Mat& _mat_img, cv::Rect& _init_rect);
 
     // Do tracking
-    bool update(cv::Mat& _mat_img);
+    bool update(const cv::Mat& _mat_img);
 
     // Check the target is inside of the frame
     bool isTargetInsideFrame(int _frame_width, int _frame_height);
@@ -108,7 +111,7 @@ class TrackingSystem
 public:
     typedef boost::shared_ptr<TrackingSystem> Ptr;
     TrackingSystem(int _target_num);
-    void update(const cv::Mat& img, std::vector<dlib::rectangle> detections);
+    std::vector<dlib::rectangle> update(const cv::Mat& img, std::vector<dlib::rectangle> detections);
 
 private:
     int            target_num;
@@ -120,5 +123,6 @@ private:
 
 };
 
-
+}
+}
 #endif

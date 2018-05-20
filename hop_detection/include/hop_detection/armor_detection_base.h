@@ -1,8 +1,10 @@
 #ifndef OBJECT_DETECTOR_BASE_H
 #define OBJECT_DETECTOR_BASE_H
 
-#include "hop_msgs/error_node.h"
+#include "common/error_code.h"
 #include <boost/shared_ptr.hpp>
+
+#include <opencv2/opencv.hpp>
 
 #include <vector>
 #include <iostream>

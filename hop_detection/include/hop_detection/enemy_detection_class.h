@@ -45,18 +45,19 @@
 // #include <pcl/point_types.h>
 #include "hop_msgs/EnemyPos.h"
 #include "hop_msgs/EnemyHOGPos.h"
-#include "object_detection/fhog_object_detector/object_detector_class.h"
-
+#include "object_detection/object_detector_class.h"
+#include "color_detection/color_detection.h"
+#include <boost/make_shared.hpp>
 namespace hop_detection
 {
 using namespace message_filters::sync_policies;
-using namespace hop_detection::armor_detectors;
-using namespace hop_detection:object_detectors;
-
+using namespace armor_detectors;
+using namespace object_detectors;
+using namespace hop_msgs;
 class EnemyDetection
 {
 public: 
-    EnemyDetection(ros::NodeHandle &nh, ros::NodeHandle &nh_priv, const std::string & name, bool is_depth);
+    EnemyDetection(ros::NodeHandle &nh, ros::NodeHandle &nh_priv, const std::string & name);
     virtual ~EnemyDetection(){};   
 private:
     bool is_depth_;
@@ -88,12 +89,12 @@ private:
     std::queue<boost::shared_ptr<const sensor_msgs::Image>> image_queue_;
     std::queue<boost::shared_ptr<const sensor_msgs::Image>> depth_queue_;
 
-    int queue_length_；
+    int queue_length_;
 
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
     void depthCallback(const sensor_msgs::ImageConstPtr& msg, const sensor_msgs::ImageConstPtr& depth_msg);
-    void service();
-    void process_one(const sensor_msgs::ImageConstPtr& msg);
+    //void service();
+    void process_one(const sensor_msgs::ImageConstPtr& msg, const sensor_msgs::ImageConstPtr& depth_msg);
     
 }; // class EnemyDetection
 } // namespace hop_detection

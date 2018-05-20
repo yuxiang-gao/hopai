@@ -61,6 +61,8 @@
   <build_depend>cmake_modules</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>dynamic_reconfigure</build_depend>
+  <!--<build_depend>opencv3_catkin</build_depend>-->
+  <build_depend>eigen_catkin</build_depend>
 
   <build_export_depend>cv_bridge</build_export_depend>
   <build_export_depend>image_transport</build_export_depend>
@@ -84,9 +86,6 @@
   
   <build_depend>libpcl-all-dev</build_depend>
   <exec_depend>libpcl-all</exec_depend>
-  
-  <build_depend>eigen_catkin</build_depend>
-  <build_depend>opencv3_catkin</build_depend>
 
   <build_depend>hop_msgs</build_depend>
 

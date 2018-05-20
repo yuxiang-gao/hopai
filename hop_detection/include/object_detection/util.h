@@ -7,15 +7,17 @@
 #include <dlib/dir_nav.h>
 #include <dlib/opencv.h>
 
+#include <opencv2/opencv.hpp>
+
 namespace hop_detection
 {
 namespace object_detectors
 {
 class Utils{
 public:
-	static double computeIOU(dlib::rectangle &rect1, dlib::rectangle &rect2)
+	static double computeIOU(dlib::rectangle rect1, dlib::rectangle rect2)
 	{
-		return rect1.intersect(rect2).area() / (rect1.area() + rect2.area() - rect1.intersect(rect2).area())
+		return rect1.intersect(rect2).area() / (rect1.area() + rect2.area() - rect1.intersect(rect2).area());
 	}
 
     static cv::Rect dRectToCvRect(dlib::rectangle r)
@@ -43,15 +45,21 @@ public:
 	------------------------------------------------- */
 	static dlib::array2d<unsigned char> cvMatToArray2d(const cv::Mat& src_img) // cv::Mat, not cv::Mat&. Make sure use copy of image, not the original one when converting to grayscale
 	{
-
 		//Don't need to use color image in HOG-feature-based tracker
 		//Convert color image to grayscale
-		//cv::Mat gray_img;
+        cv::Mat gray_img;
+        if (src_img.channels() == 3)
+        {
+            cv::cvtColor(src_img, gray_img, cv::COLOR_RGB2GRAY);
+        }
+        else
+            gray_img = src_img;
+        //cv::Mat gray_img;
         //cv::cvtColor(src_img, gray_img, cv::COLOR_RGB2GRAY);
 
 		//Convert opencv 'MAT' to dlib 'array2d<unsigned char>'
-		dlib::array2d<unsigned char> dlib_img(src_img);
-		//dlib::assign_image(dlib_img, dlib::cv_image<unsigned char>(gray_img));
+		dlib::array2d<unsigned char> dlib_img;
+		dlib::assign_image(dlib_img, dlib::cv_image<unsigned char>(gray_img));
 
 		return dlib_img;
 	}

@@ -6,13 +6,13 @@ namespace hop_detection
 namespace armor_detectors
 {
 ColorDetection::ColorDetection(ros::NodeHandle *nh, ros::NodeHandle *pnh, int cam_id):
-    nh_ptr_(boost::make_shared<ros::NodeHandle>(*nh)),
-    pnh_ptr_(boost::make_shared<ros::NodeHandle>(*pnh, "armor_detection")),
+    nh_ptr_(nh),
+    pnh_ptr_(pnh),
     camera_id_(cam_id),
-    name_("color_detection"),
+    name_("armor_detection/color_detection"),
     debug_(true),
     display_(true),
-    enemy_color_(EnemyColor::RED)
+    enemy_color_(EnemyColor::RED),
     dyn_cfg_f_(boost::bind(&ColorDetection::dynCfgCallback, this, _1, _2))
 {
     // start dynamic reconfigure 
@@ -23,10 +23,10 @@ ColorDetection::ColorDetection(ros::NodeHandle *nh, ros::NodeHandle *pnh, int ca
     onInit();
 }
 
-void onInit()
+void ColorDetection::onInit()
 {
-    nh_ptr_->getParam("cameras/camera_" + camera_id_.c_str() + "/camera_matrix", camera_matrix_);
-    nh_ptr_->getParam("cameras/camera_" + camera_id_.c_str() + "/camera_distortion", camera_distortion_);
+    nh_ptr_->getParam("cameras/camera_" + std::to_string(camera_id_) + "/camera_matrix", camera_matrix_);
+    nh_ptr_->getParam("cameras/camera_" + std::to_string(camera_id_) + "/camera_distortion", camera_distortion_);
     pnh_ptr_->getParam(name_ + "/debug", debug_);
     pnh_ptr_->getParam(name_ + "/display", display_);
     // get armor params
@@ -41,15 +41,15 @@ void onInit()
     pnh_ptr_->getParam("red_range_1/lower/H", h);
     pnh_ptr_->getParam("red_range_1/lower/S", s);
     pnh_ptr_->getParam("red_range_1/lower/V", v);
-    red_range_->push_back(cv::Scalar(h, s, v));
+    red_range_.push_back(cv::Scalar(h, s, v));
     pnh_ptr_->getParam("red_range_1/upper/H", h);
     pnh_ptr_->getParam("red_range_1/upper/S", s);
     pnh_ptr_->getParam("red_range_1/upper/V", v);
-    red_range_->push_back(cv::Scalar(h, s, v));
+    red_range_.push_back(cv::Scalar(h, s, v));
     pnh_ptr_->getParam("red_range_2/lower/H", h);
     pnh_ptr_->getParam("red_range_2/lower/S", s);
     pnh_ptr_->getParam("red_range_2/lower/V", v);
-    red_range_->push_back(cv::Scalar(h, s, v));
+    red_range_.push_back(cv::Scalar(h, s, v));
     pnh_ptr_->getParam("red_range_2/upper/H", h);
     pnh_ptr_->getParam("red_range_2/upper/S", s);
     pnh_ptr_->getParam("red_range_2/upper/V", v);
@@ -84,16 +84,17 @@ bool ColorDetection::updateFrame(const cv::Mat& image_in)
     if (!image_in.empty()) 
     {
         src_img_ = image_in;
+        cv::cvtColor(src_img_, gray_img_, cv::COLOR_BGR2GRAY);
         if (debug_) 
         {
             show_lights_before_filter_ = src_img_.clone();
             show_lights_after_filter_ = src_img_.clone();
             show_armors_befor_filter_ = src_img_.clone();
             show_armors_after_filter_ = src_img_.clone();
-            cv::namedWindow( "lights_before_filter", WINDOW_AUTOSIZE );
-            cv::namedWindow( "lights_after_filter", WINDOW_AUTOSIZE );
-            cv::namedWindow( "armors_befor_filter", WINDOW_AUTOSIZE );
-            cv::namedWindow( "armors_after_filter", WINDOW_AUTOSIZE );
+            cv::namedWindow( "lights_before_filter", cv::WINDOW_AUTOSIZE );
+            cv::namedWindow( "lights_after_filter", cv::WINDOW_AUTOSIZE );
+            cv::namedWindow( "armors_befor_filter", cv::WINDOW_AUTOSIZE );
+            cv::namedWindow( "armors_after_filter", cv::WINDOW_AUTOSIZE );
             cv::waitKey(1);
             
         }
@@ -107,7 +108,7 @@ bool ColorDetection::updateFrame(const cv::Mat& image_in)
 
 }
 
-bool updateDepth(const cv::Mat& depth_in)
+bool ColorDetection::updateDepth(const cv::Mat& depth_in)
 {
     if (!depth_in.empty()) 
     {
@@ -122,7 +123,7 @@ bool updateDepth(const cv::Mat& depth_in)
 
 ErrorInfo ColorDetection::detectArmor(double &distance, double &pitch, double &yaw)
 {
-    if (debug_)
+    //if (debug_)
         TIMER_START(detectArmor);
     
     ROS_DEBUG_NAMED(name_, "Begin to detect armor!");
@@ -141,21 +142,21 @@ ErrorInfo ColorDetection::detectArmor(double &distance, double &pitch, double &y
         calcControlInfo(final_armor, distance, pitch, yaw, 10);
     }
     else
-        return ErrorInfo(hop_detection::common::Error)
-    lights_.clear();
-    armors_.clear();
+        return ErrorInfo(hop_detection::common::Error);
+    //lights_.clear();
+    //armors_.clear();
     
     if (debug_)
         TIMER_END(detectArmor);
 
-    return ErrorInfo(hop_detection::common::OK)
+    return ErrorInfo(hop_detection::common::OK);
 }
 
 cv::Mat ColorDetection::extractRed(const cv::Mat &src)
 {
     cv::Mat red_hue_upper;
     cv::Mat red_hue_lower;
-    cv::cvtColor(src, hsv_img_, cv::CV_BGR2HSV_FULL); //CV_BGR2HSV＿FULL covert h to 0-255 instead of 0-180
+    cv::cvtColor(src, hsv_img_, cv::COLOR_BGR2HSV_FULL); //CV_BGR2HSV＿FULL covert h to 0-255 instead of 0-180
     cv::inRange(hsv_img_, red_range_[0], red_range_[1], red_hue_lower);
     cv::inRange(hsv_img_, red_range_[2], red_range_[3], red_hue_upper);
     return red_hue_lower | red_hue_upper;
@@ -163,10 +164,11 @@ cv::Mat ColorDetection::extractRed(const cv::Mat &src)
 
 void ColorDetection::detectLights(const cv::Mat &src, std::vector<cv::RotatedRect> &lights, int light_color)
 {
+    cv::Mat binary_light_img;
     // extract color
     if (light_color == EnemyColor::RED)
     {
-        cv::Mat binary_light_img = extractRed(src);
+        binary_light_img = extractRed(src);
     }
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT, cv::Size(3, 3));
     cv::dilate(binary_light_img, binary_light_img, element, cv::Point(-1, -1), 1);
@@ -175,7 +177,7 @@ void ColorDetection::detectLights(const cv::Mat &src, std::vector<cv::RotatedRec
 
     // find contours
     std::vector<std::vector<cv::Point>> contours;
-    cv::findContours(binary_light_img, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE)
+    cv::findContours(binary_light_img, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
     lights.reserve(contours.size());
     for (const auto& contour : contours) 
     {
@@ -246,13 +248,11 @@ void ColorDetection::possibleArmors(const std::vector<cv::RotatedRect> &lights, 
                 hsv_img_.at<cv::Vec3b>(static_cast<int>(rect.center.y), static_cast<int>(rect.center.x))[2]
                     < params_.armor_max_pixel_val)   // value entry of hsv, shoudl be low
             {
-
+                std::vector<cv::Point2f> armor_points;
                 if (light1.center.x < light2.center.x) {
-                    std::vector<cv::Point2f> armor_points;
                     calcArmorInfo(armor_points, light1, light2);
                     
                 } else {
-                    std::vector<cv::Point2f> armor_points;
                     calcArmorInfo(armor_points, light2, light1);
                 }
                 armors.emplace_back(ArmorInfo(rect, armor_points));
@@ -373,7 +373,7 @@ void ColorDetection::calcControlInfo(const ArmorInfo & armor,
 
     if (depth_updated_)
     {
-        distance = (double)(depth_img_.ptr<float> ( armor.vertex.center.x )[armor.vertex.center.y]) / 1000; 
+        distance = (double)(depth_img_.ptr<float> ( (int)armor.rect.center.x )[(int)armor.rect.center.y]) / 1000; 
         depth_updated_ = false;
     }
     else
@@ -409,7 +409,7 @@ void ColorDetection::calcArmorInfo(std::vector<cv::Point2f> &armor_points, cv::R
     armor_points.push_back(lift_rd);
 }
 
-void ColorDetection::SolveArmorCoordinate(const float width, const float height) 
+void ColorDetection::solveArmorCoordinate(const float width, const float height) 
 {
     armor_points_.emplace_back(cv::Point3f(-width/2, height/2,  0.0));
     armor_points_.emplace_back(cv::Point3f(width/2,  height/2,  0.0));

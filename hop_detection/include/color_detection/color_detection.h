@@ -5,7 +5,8 @@
 #include "common/timer.h"
 #include "common/log.h"
 
-#include <boost/shared_ptr.h>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
 #include <sensor_msgs/CameraInfo.h>
 
 #include <vector>
@@ -41,8 +42,8 @@ public:
 
 enum EnemyColor
 {
-    int BLUE = 0;
-    int RED = 1;
+    BLUE = 0,
+    RED = 1
 };
 
 struct ColorDetectionParams
@@ -94,7 +95,8 @@ public:
     
     ErrorInfo detectArmor(double &distance, double &pitch, double &yaw) override;
     
-    void extractRed(const cv::Mat &src);
+    
+    cv::Mat extractRed(const cv::Mat &src);
 
     void detectLights(const cv::Mat &src, std::vector<cv::RotatedRect> &lights, int light_color = EnemyColor::RED);
     /**
@@ -165,12 +167,13 @@ private:
     sensor_msgs::CameraInfo camera_info_;
 
     bool debug_, display_;
-    int enemy_color_;
+    //int enemy_color_;
     bool has_depth_;
     bool depth_updated_;
 
     cv::Mat src_img_;
     cv::Mat hsv_img_;
+    cv::Mat gray_img_;
     cv::Mat depth_img_;
     unsigned int enemy_color_;
 

@@ -7,22 +7,23 @@
 
 namespace hop_detection
 {
-EnemyDetection::EnemyDetection (ros::NodeHandle &nh, ros::NodeHandle &pnh, const std::string & name, bool is_depth):
+EnemyDetection::EnemyDetection (ros::NodeHandle &nh, ros::NodeHandle &pnh, const std::string & name):
     nh_(boost::make_shared<ros::NodeHandle>(nh)),
     pnh_(boost::make_shared<ros::NodeHandle>(pnh)),
-    name_(name)，
+    name_(name),
     queue_length_(2)
-    is_depth_(is_depth)
+    //is_depth_(is_depth)
 {
     ROS_DEBUG_ONCE_NAMED(name_, "Starting obstacle avoidance.");
-    it_ = boost::make_shared<image_transport::ImageTransport>(*nh_));
+    it_ = boost::make_shared<image_transport::ImageTransport>(*nh_);
     object_detect_ = boost::make_shared<ObjectDetectorClass>(nh_, pnh_, 0);
-    color_detect_ = boost::make_shared<ColorDetections>(nh_, pnh_, 0)
+    color_detect_ = boost::make_shared<ColorDetection>(nh_, pnh_, 0);
 
-    enemy_pos_pub_ = ros::Publisher("enemy", EnemyHOGPos, 1)
-    armor_pos_pub_ = ros::Publisher("enemy_pos", EnemyPos, 1);
+    enemy_pos_pub_ = nh_->advertise<EnemyHOGPos>("enemy", 1);
+    armor_pos_pub_ = nh_->advertise<EnemyPos>("enemy_pos", 1);
     int queue_size;
     pnh_->param("queue_size", queue_size, 5);
+    pnh_->param("use_depth", is_depth_, true);
     
 
     if (is_depth_)
@@ -50,7 +51,7 @@ EnemyDetection::EnemyDetection (ros::NodeHandle &nh, ros::NodeHandle &pnh, const
     }
     else
     {
-        image_sub_.subscribe("image_in", 1, &EnemyDetection::imageCallback, this);
+        image_sub_ = it_->subscribe("image_in", 1, &EnemyDetection::imageCallback, this);
     }
 } //constructor
 
@@ -61,7 +62,9 @@ void EnemyDetection::imageCallback(const sensor_msgs::ImageConstPtr& msg)
     // if (image_queue_.size() == queue_length_)
     //     image_queue_.pop();
     // image_queue_.push(msg);
-    process_one(msg, NULL);
+    sensor_msgs::ImageConstPtr this_depth;
+    this_depth = NULL;
+    process_one(msg, this_depth);
 }
 
 void EnemyDetection::depthCallback(const sensor_msgs::ImageConstPtr& msg, const sensor_msgs::ImageConstPtr& depth_msg)
@@ -102,7 +105,7 @@ void EnemyDetection::depthCallback(const sensor_msgs::ImageConstPtr& msg, const 
 
 // } // image_callback
 
-
+/*
 void EnemyDetection::service()
 {
     ROS_INFO("Deteection: Started service thread\n");
@@ -146,7 +149,7 @@ void EnemyDetection::service()
     else
         ROS_DEBUG"Waiting for message");
 }
-
+*/
 void EnemyDetection::process_one(const sensor_msgs::ImageConstPtr& msg, const sensor_msgs::ImageConstPtr& depth_msg)
 {
     cv_bridge::CvImagePtr src_ptr;

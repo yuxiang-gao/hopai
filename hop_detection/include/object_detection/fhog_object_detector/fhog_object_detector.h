@@ -1,7 +1,7 @@
 #ifndef FHOG_OBJECT_DETECTOR_H
 #define FHOG_OBJECT_DETECTOR_H
 
-#include "util.h"
+#include "object_detection/util.h"
 
 #include <dlib/opencv.h>
 #include <dlib/svm_threaded.h>
@@ -32,9 +32,9 @@ public:
 
     std::vector<dlib::rectangle> detect(const cv::Mat& image_in);
 
-    void FHOGObjectDetector::filterDetections(std::vector<dlib::rectangle>& detections);
+    void filterDetections(std::vector<dlib::rectangle>& detections);
     
-    void display();
+    void display(std::vector<dlib::rectangle> & detections);
 
     std::vector<dlib::rectangle> getDetections() { return  detections_; }
     
@@ -53,7 +53,7 @@ private:
     //boost::shared_ptr<cv_image_type> image_ptr_;
     cv_image_type image_;
     double threshold_;
-    bool dispaly_;
+    bool display_;
     dlib::image_window win_;
 }; // class FHOGObjectDetector
 } // namespace detector

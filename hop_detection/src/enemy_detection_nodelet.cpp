@@ -9,6 +9,6 @@ namespace hop_detection
 void EnemyDetectionNodelet::onInit()
 {
     NODELET_DEBUG("Initializing nodelet");
-    inst_.reset(new EnemyDetection(&getNodeHandle(), &getPrivateNodeHandle(), getName()));
+    inst_.reset(new EnemyDetection(getNodeHandle(), getPrivateNodeHandle(), getName()));
 } // class 
 } // namespace hd_depth
