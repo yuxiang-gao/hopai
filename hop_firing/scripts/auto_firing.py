@@ -9,7 +9,7 @@ class GimbalAiming:
 	def __init__(self):
 		rospy.init_node('gimbal_aiming', anonymous=True)
                  self.init_detection()
-        rospy.Subscriber('fiducial_transforms', FiducialTransformArray, self._transform_callback)
+        rospy.Subscriber('target_pose', , self._transform_callback)
         rospy.Subscriber('odom',Odometry,self._velocity_callback)
         self._gimbal_pub 	= rospy.Publisher('gimbal_angle', GimbalAngle, queue_size=1)
         self._shoot_pub 	= rospy.Publisher('shoot', UInt8MultiArray, queue_size=1)

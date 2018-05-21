@@ -1,3 +1,7 @@
+// This node takes care of the tf between the base link and the gimbal
+// Version: 0.1
+// Author: RUi
+
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include "hopai_msgs/GimbalAngle.h"
@@ -15,6 +19,7 @@ void gimbalCallback(hopai_msgs::GimbalAngle& msg){
 int main(int argc, char** argv){
   ros::init(argc, argv, "hopai_tf_broadcaster");
   ros::NodeHandle node;
+
 
   ros::Subscriber sub = node.subscribe("gimbal_angle", 10, &gimbalCallback);
   

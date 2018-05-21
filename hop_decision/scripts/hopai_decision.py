@@ -12,6 +12,7 @@ from hop_msgs.msg import *
 # used for FSM implementation. FOr more info:
 # https://github.com/pytransitions/transitions
 
+
 # Version: 0.1
 # Author: Rui
 ##################################################
@@ -42,16 +43,19 @@ class Hopai(object):
     
     def __init__(self,name='Hopai'):
         self.name       = name
-        self.machine    = Machine(model=self, states=Hopai.states, initial='to_mid')
-        
+        self.machine    = Machine(model=self, states=Hopai.states, transitions=Hopai.transitions, initial='to_mid')
+
+
     # Conditional Check
 
-    def enemy_found(self):
+    def if_enemy_found(self):
         pass
 
 
-    def enemy_lost(self):
+
+    def if_enemy_lost(self):
         pass
+
 
 
     # Action Unit
@@ -59,9 +63,11 @@ class Hopai(object):
         pass
 
 
+
     def navigate(self,goal):
         pass
     
+
 
     def dodge(self):
         pass
