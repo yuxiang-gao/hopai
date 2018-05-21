@@ -8,9 +8,9 @@ namespace hop_detection
 {
 namespace object_detectors
 {
-ObjectDetectorClass::ObjectDetectorClass(ros::NodeHandle *nh, ros::NodeHandle *pnh, int cam_id):
-    nh_ptr_(nh),
-    pnh_ptr_(pnh),
+ObjectDetectorClass::ObjectDetectorClass(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id):
+    nh_ptr_(boost::make_shared<ros::NodeHandle>(nh)),
+    pnh_ptr_(boost::make_shared<ros::NodeHandle>(pnh)),
     camera_id_(cam_id),
     ns_("enemy_detection/fhog_object_detector")
 

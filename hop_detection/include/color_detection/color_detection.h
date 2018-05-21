@@ -72,7 +72,7 @@ class ColorDetection: public ArmorDetectionBase
 {
 public:
     typedef boost::shared_ptr<ColorDetection> Ptr;
-    ColorDetection(ros::NodeHandle *nh, ros::NodeHandle *pnh, int cam_id);
+    ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id);
     void onInit();
     void setDebug(bool debug)
     {

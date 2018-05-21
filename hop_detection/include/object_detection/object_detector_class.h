@@ -12,7 +12,7 @@ class ObjectDetectorClass
 {
 public:
     typedef boost::shared_ptr<ObjectDetectorClass> Ptr;
-    ObjectDetectorClass(ros::NodeHandle *nh, ros::NodeHandle *pnh, int cam_id);
+    ObjectDetectorClass(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id);
 
     std::vector<cv::Rect> detect(const cv::Mat& image_in);
     ~ObjectDetectorClass()

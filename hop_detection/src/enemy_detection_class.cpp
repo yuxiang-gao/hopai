@@ -16,8 +16,8 @@ EnemyDetection::EnemyDetection (ros::NodeHandle &nh, ros::NodeHandle &pnh, const
 {
     ROS_DEBUG_ONCE_NAMED(name_, "Starting obstacle avoidance.");
     it_ = boost::make_shared<image_transport::ImageTransport>(*nh_);
-    object_detect_ = boost::make_shared<ObjectDetectorClass>(nh_, pnh_, 0);
-    color_detect_ = boost::make_shared<ColorDetection>(nh_, pnh_, 0);
+    object_detect_ = boost::make_shared<ObjectDetectorClass>(*nh_, *pnh_, 0);
+    color_detect_ = boost::make_shared<ColorDetection>(*nh_, *pnh_, 0);
 
     enemy_pos_pub_ = nh_->advertise<EnemyHOGPos>("enemy", 1);
     armor_pos_pub_ = nh_->advertise<EnemyPos>("enemy_pos", 1);
@@ -169,10 +169,14 @@ void EnemyDetection::process_one(const sensor_msgs::ImageConstPtr& msg, const se
             depth_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_16UC1);
             color_detect_->updateDepth(depth_ptr->image);
         }
-        if (color_detect_->detectArmor(distance, pitch, yaw).isOK())
+        if (color_detect_->detectArmor(distance, pitch, yaw).IsOK())
         {
             //TODO
-            enemy_pos_pub_.publish()
+            EnemyPos pos_msg;
+            pos_msg.enemy_dist = distance;
+            pos_msg.enemy_pitch = pitch;
+            pos_msg.enemy_yaw = yaw;
+            enemy_pos_pub_.publish(pos_msg);
         }
 
         std::vector<cv::Rect> result = object_detect_->detect(src_ptr->image);
@@ -183,5 +187,5 @@ void EnemyDetection::process_one(const sensor_msgs::ImageConstPtr& msg, const se
     {
         ROS_ERROR("cv_bridge exception: %s", e.what());
     }
-
+}
 } // namespace hd_depth

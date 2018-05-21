@@ -5,9 +5,9 @@ namespace hop_detection
 {
 namespace armor_detectors
 {
-ColorDetection::ColorDetection(ros::NodeHandle *nh, ros::NodeHandle *pnh, int cam_id):
-    nh_ptr_(nh),
-    pnh_ptr_(pnh),
+ColorDetection::ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id):
+    nh_ptr_(boost::make_shared<ros::NodeHandle>(nh)),
+    pnh_ptr_(boost::make_shared<ros::NodeHandle>(pnh)),
     camera_id_(cam_id),
     name_("armor_detection/color_detection"),
     debug_(true),
