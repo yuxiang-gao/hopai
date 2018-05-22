@@ -9,40 +9,12 @@ import math
 class GimbalAiming:
 	def __init__(self):
 		rospy.init_node('gimbal_aiming', anonymous=True)
-        self.init_detection()
-        rospy.Subscriber('target_pose', , self._transform_callback)
-        rospy.Subscriber('odom',Odometry,self._velocity_callback)
-        self._gimbal_pub 	= rospy.Publisher('gimbal_angle', GimbalAngle, queue_size=1)
+        rospy.Subscriber('enemy_pose',EnemyPose, self._transform_callback)
         self._shoot_pub 	= rospy.Publisher('shoot', UInt8MultiArray, queue_size=1)
         rate 				= rospy.Rate(20) # 20hz
 
-
-        self.transform_listener = tf.TransformListener()
-
-        self._cnt 			= 0
-        self._out_cnt 		= 0
-        self._last_id 		= 0
-        self._shoot_dict 	= Counter()
-
-        self.gim_yaw 		= 0
-        self.gim_pitch 		= 0
-        self.enable_shoot 	= False
-
-        self.velocity_x		= 0
-        self.velocity_y		= 0
-
-        print 'init...'
-        self._init_cnt 		= 0
+        
         while not rospy.is_shutdown():
-            gimbal_angle 	= GimbalAngle()
-            shoot_msg 		= UInt8MultiArray(data=[0, 0, 1, 1500])
-            
-            if self._init_cnt < 50 and self.enable_shoot:
-                self._init_cnt += 1
-                self._gimbal_pub.publish(gimbal_angle)
-                self._shoot_pub.publish(shoot_msg)
-                rate.sleep()
-                continue
             
             if self.enemy_id == 0:
                 self._cnt = 0
@@ -61,7 +33,7 @@ class GimbalAiming:
                     ######
                     self._calc_gimbal(self.enemy_z, -self.enemy_x, 2/25-self.enemy_y)
                     ######
-                    shoot_msg.data = [1, 0, 1, 100]
+                    shoot_msg.data = [1, 0, 1, 1500]
             
             gimbal_angle.pitch = float(self.gim_pitch)
             gimbal_angle.yaw = float(self.gim_yaw)

@@ -2,7 +2,6 @@ import rospy
 import tf
 import random
 import math
-import actionlib
 from transitions import Machine
 from geometry_msgs.msg import Pose2D, Point, PoseStamped
 from std_msgs.msg import Bool, Int32
@@ -13,7 +12,7 @@ from hop_msgs.msg import *
 # The is the simple version of the decision module 
 # of the robot using a FSM in python. pytransitions 
 # is the package used for FSM implementation. 
-# FOr more info:
+# For more info:
 # https://github.com/pytransitions/transitions
 #
 # Version: 0.1
@@ -22,7 +21,7 @@ from hop_msgs.msg import *
 class Hopai(object):
     health   = 3000
     #bonus_size = 0.58 # bonus zone side length in meter
-    cur_pose     =[0,0,0] # x, y, theta 
+    cur_pose     =[0.5,0.5,0.5] # x, y, theta 
     states   = [
         State(name = 'to_mid', on_enter=['to_mid_cb']),
         #State(name = 'take_buff', on_enter=['take_buff_cb']),
@@ -55,11 +54,11 @@ class Hopai(object):
         self.enemy      = False  # Robot
         self.ene_camera = 2
         self.target     = False  # Armor
-        self.tar_camera = 2 
+        self.enemy_dist = 10
         self.being_hit  = False 
         self.hit_armor  = 0 
         self.goal_pose  = [0,0,0] # x, y, theta
-
+        self.enemy_dist = 
         # fsm
         self.machine    = Machine(model=self, states=Hopai.states, transitions=Hopai.transitions, initial='to_mid')
         
@@ -71,12 +70,12 @@ class Hopai(object):
             continue
         self.cur_pose   = [trans[0],trans[1],rot[2]]
 
-        self.hp_sub     = rospy.Subscriber('self_hp',Int32,self.self_hp_update)
+        self.hp_sub     = rospy.Subscriber('health_point',Health,self.self_hp_update)
         self.enemy_sub0 = rospy.Subscriber('enemy_left',Bool,self.enemy_update0)
         self.enemy_sub1 = rospy.Subscriber('enemy_right',Bool,self.enemy_update1)
         #self.enemy_subp  = rospy.Subscriber('enemy_prim',,self.enemy_update2)
         self.target_sub2= rospy.Subscriber('target_mid',EnemyPose,self.target_update2)
-        self.hit_sub    = rospy.Subscriber('hit_armor',Int32,self.hit_update)
+        self.hit_sub    = rospy.Subscriber('armor_id',Id,self.hit_update)
         # update fsm
         self.update()
 
@@ -112,7 +111,8 @@ class Hopai(object):
 
 
     def if_enemy_detected(self):
-        return self.enemy
+        return (self.enemy or self.target)
+
         
     # if self is in the bonus zone
     #def if_reached_mid(self):
@@ -131,9 +131,7 @@ class Hopai(object):
     def navigate(self):
         goal  = self.goal_pose
         post_stamp_goal = to_pose_stamped(goal)
-        pose_pub.publish(post_stamp_goal)
-        
-
+        self.goal_pub.publish(post_stamp_goal)
 
     def idle(self):
         pass
@@ -169,20 +167,25 @@ class Hopai(object):
     def stop_dodge(self):
         self.mode_pub.publish(5)
 ##################################################
-
     # Obervation Callbacks
 
     def self_hp_update(self,msg):
         self.health = msg
 
-###############################################
-#####     TO DO
-###############################################
-    def enemy_update(self,msg):
-        pass
-    
-    def target_update(self,msg):
-        pass
+    def enemy_update0(self,msg):
+        if msg:
+            self.ene_camera = 0
+            self.enemy      = True
+
+    def enemy_update1(self,msg):
+        if msg:
+            self.ene_camera = 1
+            self.enemy      = True
+
+    def target_update2(self,msg):
+            self.target = True
+            self.dist_target = msg.enemy_dist
+         
 ###############################################
 ###############################################
     # State Behavior
@@ -199,6 +202,7 @@ class Hopai(object):
 
     def engage_cb(self):
         self.turn_to_target()
+        if self.enemy_dist < 3
         self.start_dodge()
 
     def disengage_cb(self):
@@ -210,38 +214,40 @@ class Hopai(object):
 #####     DECIDE WAY POINT
 #########################################
     def patrol_cb(self):
+        time1 = rospy.Time(5)
+        time2 = rospy.Time(7)
         # goal 1
-        self.goal_pose = [2.6,1.6,1.5708]
-        self.navigate()
+        while not rospy.is_shutdown(): 
+            self.goal_pose = [2.6,1.6,1.5708]
+            self.navigate()
+            time1.sleep()
         # goal 2
-        self.goal_pose = [4.5,3.5,-0.5]
-        self.navigate()
+            self.goal_pose = [4.5,2.5,-0.5]
+            self.navigate()
+            time1.sleep()
         # goal 3
-        self.goal_pose = [4.5,3.5,0]
-        self.navigate()
+            self.goal_pose = [5.5,3.4,1.5708]
+            self.navigate()
+            time1.sleep()
         # goal 4
-        self.goal_pose = [4.5,3.5,0]
-        self.navigate()
+            self.goal_pose = [7,0.75,-3.14]
+            self.navigate()
+            time1.sleep()
+
+            self.goal_pose = [0.5,0.5,0.5]
+            self.navigate()
+            time2.sleep()
         # ...
 
     def runhome_cb(self):
         # goal 1
-        self.goal_pose = [0,0,0]
-        self.navigate()
-        # goal 2
-        self.goal_pose = [0,0,0]
-        self.navigate()
-        # goal 3
-        self.goal_pose = [0,0,0]
+        self.goal_pose = [0.5,0.5,0.5]
         self.navigate()
         # goal ...
 #############################################
 
-
     # Update
     def update(self):
-        # update cur_pose
-        
         # 
         if not self.is_engage():
             if self.if_enemy_detected():
@@ -250,13 +256,12 @@ class Hopai(object):
             if not self.if_enemy_detected():
                 self.enemy_missing()
 
-
         #if self.has_buff():
         #    self.have_buff()        
         if self.if_taking_damage():
             self.taking_damage()
 
-        if self.health < 500:
+        if self.health < 1000:
             self.to_runhome()
 
 
