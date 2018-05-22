@@ -1,0 +1,22 @@
+<launch>
+    <rosparam command="load" file="$(find hop_detection)/config/camera_params.yaml"/>
+    <rosparam command="load" file="$(find hop_detection)/config/detection_params.yaml"/>
+
+  <node pkg="hop_detection" type="enemy_detection_test" name="enemy_detection_left" output="screen">
+    <remap from="/image_in" to="/cam_left/image_raw"/>
+    <remap from="/enemy" to="/enemy_left"/>
+    <param name="armor_detection/color_detection/display" value="false" />
+    <param name="side_cam" value="true" />
+  </node>  
+  <node pkg="hop_detection" type="enemy_detection_test" name="enemy_detection_right" output="screen">
+    <remap from="/image_in" to="/cam_lright/image_raw"/>
+    <remap from="/enemy" to="/enemy_right"/>
+    <param name="armor_detection/color_detection/display" value="false" />
+    <param name="side_cam" value="true" />
+  </node> 
+  <node pkg="hop_detection" type="enemy_detection_test" name="enemy_detection_mid" output="screen">
+    <remap from="/image_in" to="/cam_mid/image_raw"/>
+    <param name="armor_detection/color_detection/display" value="true" />
+    <param name="side_cam" value="false" />
+  </node> 
+</launch>

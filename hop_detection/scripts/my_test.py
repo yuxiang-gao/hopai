@@ -106,6 +106,7 @@ test_detector.add_detector("/home/nvidia/catkin_ws/src/hopai/hop_detection/svms/
 test_detector.add_detector("/home/nvidia/catkin_ws/src/hopai/hop_detection/svms/enemy-back-detector.svm")
 test_detector.add_detector("/home/nvidia/catkin_ws/src/hopai/hop_detection/svms/enemy-left-detector.svm")
 test_detector.add_detector("/home/nvidia/catkin_ws/src/hopai/hop_detection/svms/enemy-right-detector.svm")
+test_detector.add_detector("/home/nvidia/catkin_ws/src/hopai/hop_detection/svms/enemy_detector.svm")
 
 
 annotate = 'enemy'
@@ -276,9 +277,9 @@ while(True):
         frame = cv2.resize(frame, (256, 256))
         frame = tracker_callback(frame, 'KCF')
         # Display the resulting frame
-        cv2.imshow('frame', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        #cv2.imshow('frame', frame)
+        #if cv2.waitKey(1) & 0xFF == ord('q'):
+        #    break
 
 # When everything done, release the capture
 cap.release()

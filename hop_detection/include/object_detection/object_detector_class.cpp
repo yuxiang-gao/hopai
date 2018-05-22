@@ -47,7 +47,7 @@ std::vector<cv::Rect> ObjectDetectorClass::detect(const cv::Mat& image_in)
     if (display_)
         detector_ptr_->display(detections);
     //std::cout <<"detections: " << detections[0] << std::endl;
-    detections = tracking_ptr_->update(gray_image, detections);
+    //std::vector<dlib::rectangle> trackings = tracking_ptr_->update(gray_image, detections);
     std::vector<cv::Rect> cv_detections;
     for (auto & d : detections)
     {

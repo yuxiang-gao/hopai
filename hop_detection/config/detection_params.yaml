@@ -42,7 +42,7 @@ cameras:
     camera_right:
         frame_id: "camera_right_frame"
 
-    camera_middle:
+    camera_mid:
         frame_id: "camera_middle_frame"
 
     primesense:

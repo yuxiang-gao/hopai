@@ -92,6 +92,8 @@ private:
     std::queue<boost::shared_ptr<const sensor_msgs::Image>> depth_queue_;
 
     int queue_length_;
+    
+    bool side_cam;
 
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
     void depthCallback(const sensor_msgs::ImageConstPtr& msg, const sensor_msgs::ImageConstPtr& depth_msg);

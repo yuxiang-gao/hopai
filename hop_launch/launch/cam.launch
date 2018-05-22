@@ -1,20 +1,30 @@
 <launch>
 
-    <!--  <node name="usb_cam0" pkg="usb_cam" type="usb_cam_node" output="screen" >
+  <node name="cam_left" pkg="usb_cam" type="usb_cam_node" output="screen" >
     <param name="video_device" value="/dev/video0" />
-    <param name="image_width" value="640" />
-    <param name="image_height" value="480" />
+    <param name="image_width" value="320" />
+    <param name="image_height" value="240" />
     <param name="pixel_format" value="yuyv" />
-    <param name="camera_frame_id" value="usb_cam_left" />
+    <param name="camera_frame_id" value="camera_left" />
+    <param name="camera_name" value="camera_left" />
     <param name="io_method" value="mmap"/>
-  </node>-->
-  <node name="usb_cam1" pkg="usb_cam" type="usb_cam_node" output="screen" >
-    <param name="video_device" value="/dev/video0" />
-    <param name="image_width" value="640" />
-    <param name="image_height" value="480" />
+  </node>
+  <node name="cam_right" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video1" />
+    <param name="image_width" value="320" />
+    <param name="image_height" value="240" />
     <param name="pixel_format" value="yuyv" />
     <param name="camera_frame_id" value="camera_right" />
     <param name="camera_name" value="camera_right" />
+    <param name="io_method" value="mmap"/>
+  </node>
+  <node name="cam_mid" pkg="usb_cam" type="usb_cam_node" output="screen" >
+    <param name="video_device" value="/dev/video2" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="yuyv" />
+    <param name="camera_frame_id" value="camera_mid" />
+    <param name="camera_name" value="camera_mid" />
     <param name="io_method" value="mmap"/>
   </node>
     <!--include file="$(find hop_launch)/launch/primesense.launch">

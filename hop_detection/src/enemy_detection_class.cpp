@@ -1,4 +1,5 @@
 #include "hop_detection/enemy_detection_class.h"
+#include <std_msgs/Bool.h>
 
 #define DEBUG 1
 #if DEBUG
@@ -19,12 +20,13 @@ EnemyDetection::EnemyDetection (ros::NodeHandle &nh, ros::NodeHandle &pnh, const
     object_detect_ = boost::make_shared<ObjectDetectorClass>(*nh_, *pnh_, 0);
     color_detect_ = boost::make_shared<ColorDetection>(*nh_, *pnh_, 0);
 
-    enemy_pos_pub_ = nh_->advertise<EnemyHOGPos>("enemy", 1);
+    enemy_pos_pub_ = nh_->advertise<std_msgs::Bool>("enemy", 1);
     armor_pos_pub_ = nh_->advertise<EnemyPos>("enemy_pos", 1);
     int queue_size;
+    
     pnh_->param("queue_size", queue_size, 5);
     pnh_->param("use_depth", is_depth_, false);
-    
+    pnh_->getParam("side_cam", side_cam);
 
     if (is_depth_)
     {
@@ -169,17 +171,29 @@ void EnemyDetection::process_one(const sensor_msgs::ImageConstPtr& msg, const se
             depth_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_16UC1);
             color_detect_->updateDepth(depth_ptr->image);
         }
-        if (color_detect_->detectArmor(distance, pitch, yaw).IsOK())
+        if (!side_cam)
         {
-            //TODO
-            EnemyPos pos_msg;
-            pos_msg.enemy_dist = distance;
-            pos_msg.enemy_pitch = pitch;
-            pos_msg.enemy_yaw = yaw;
-            enemy_pos_pub_.publish(pos_msg);
-        }
-
-        std::vector<cv::Rect> result = object_detect_->detect(src_ptr->image);
+	        if (color_detect_->detectArmor(distance, pitch, yaw).IsOK())
+	        {
+	            //TODO
+	            EnemyPos pos_msg;
+	            pos_msg.enemy_dist = distance;
+	            pos_msg.enemy_pitch = pitch;
+	            pos_msg.enemy_yaw = yaw;
+	            enemy_pos_pub_.publish(pos_msg);
+	        }
+		}
+		else
+		{
+			
+			std::vector<cv::Rect> result = object_detect_->detect(src_ptr->image);
+			if (result.size() > 0)
+			{
+				enemy_pos_pub_.publish(true);
+			}
+			else
+				enemy_pos_pub_.publish(false);
+		}
 //TODO
 
     } 
