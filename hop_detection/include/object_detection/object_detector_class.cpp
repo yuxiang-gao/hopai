@@ -16,11 +16,11 @@ ObjectDetectorClass::ObjectDetectorClass(ros::NodeHandle &nh, ros::NodeHandle &p
 
 {
     std::vector<std::string> detectors;
-    detectors.push_back("svms/enemy-back-detector.svm");
-    detectors.push_back("svms/enemy-front-detector.svm");
-    detectors.push_back("svms/enemy-left-detector.svm");
-    detectors.push_back("svms/enemy-right-detector.svm");
-    detectors.push_back("svms/enemy_detector.svm");
+    detectors.push_back("/svms/enemy-back-detector.svm");
+    detectors.push_back("/svms/enemy-front-detector.svm");
+    detectors.push_back("/svms/enemy-left-detector.svm");
+    detectors.push_back("/svms/enemy-right-detector.svm");
+    detectors.push_back("/svms/enemy_detector.svm");
     nh_ptr_->getParam(ns_ + "/display", display_);
     //nh_ptr_->getParam(ns_ + "/detectors", detectors);
     nh_ptr_->getParam(ns_ + "/threshold", threshold_ );
@@ -36,21 +36,24 @@ ObjectDetectorClass::ObjectDetectorClass(ros::NodeHandle &nh, ros::NodeHandle &p
     {
         detector_ptr_->setThreshold(threshold_);
     }
-    tracking_ptr_ = boost::make_shared<TrackingSystem>(2);
+    tracking_ptr_ = boost::make_shared<TrackingSystem>(1);
 }
 
 std::vector<cv::Rect> ObjectDetectorClass::detect(const cv::Mat& image_in)
 {
     cv::Mat gray_image;
     cv::cvtColor(image_in, gray_image, cv::COLOR_BGR2GRAY);
-    std::vector<dlib::rectangle> detections = tracking_ptr_->update(gray_image, detector_ptr_->detect(image_in));
+    std::vector<dlib::rectangle> detections = detector_ptr_->detect(image_in);
+    if (display_)
+        detector_ptr_->display(detections);
+    //std::cout <<"detections: " << detections[0] << std::endl;
+    detections = tracking_ptr_->update(gray_image, detections);
     std::vector<cv::Rect> cv_detections;
     for (auto & d : detections)
     {
         cv_detections.push_back(Utils::dRectToCvRect(d));
     }
-    if (display_)
-        detector_ptr_->display(detections);
+    
     return cv_detections;
 }
 } // namespace detector

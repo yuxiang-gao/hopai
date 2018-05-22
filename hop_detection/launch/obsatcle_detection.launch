@@ -1,0 +1,9 @@
+<launch>
+    <rosparam command="load" file="$(find hop_detection)/config/camera_params.yaml"/>
+    <rosparam command="load" file="$(find hop_detection)/config/detection_params.yaml"/>
+  <node pkg="hop_detection" type="enemy_detection_test" name="enemy_detection_test" output="screen">
+    <remap from="/depth_in" to="depth"/>
+    <remap from="/image_in" to="/usb_cam1/image_raw"/>
+    <param name="armor_detection/color_detection/display" value="true" />
+  </node>  
+</launch>

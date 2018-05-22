@@ -48,12 +48,14 @@
 #include "object_detection/object_detector_class.h"
 #include "color_detection/color_detection.h"
 #include <boost/make_shared.hpp>
+
 namespace hop_detection
 {
 using namespace message_filters::sync_policies;
 using namespace armor_detectors;
 using namespace object_detectors;
 using namespace hop_msgs;
+
 class EnemyDetection
 {
 public: 
@@ -76,7 +78,7 @@ private:
 
     ros::Publisher enemy_pos_pub_;
     ros::Publisher armor_pos_pub_;
-    //ros::Subscriber cloud_sub_;
+
     std::string name_;
 
     ObjectDetectorClass::Ptr object_detect_;

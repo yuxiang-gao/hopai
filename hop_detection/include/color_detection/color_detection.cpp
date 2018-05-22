@@ -26,7 +26,7 @@ ColorDetection::ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int ca
 void ColorDetection::onInit()
 {
     nh_ptr_->getParam("cameras/camera_" + std::to_string(camera_id_) + "/camera_matrix", camera_matrix_);
-    std::cout << camera_matrix_[0] << std::endl;
+    //std::cout << camera_matrix_[0] << std::endl;
     nh_ptr_->getParam("cameras/camera_" + std::to_string(camera_id_) + "/camera_distortion", camera_distortion_);
     pnh_ptr_->getParam(name_ + "/debug", debug_);
     pnh_ptr_->getParam(name_ + "/display", display_);
@@ -34,7 +34,7 @@ void ColorDetection::onInit()
     double width;
     double height;
     nh_ptr_->getParam("armor_detection/armor_size/width", width);
-    std::cout << width << std::endl;
+    //std::cout << width << std::endl;
     nh_ptr_->getParam("armor_detection/armor_size/height", height);
     solveArmorCoordinate(width, height);
     int h;
