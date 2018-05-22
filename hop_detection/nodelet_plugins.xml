@@ -1,5 +1,5 @@
 <library path="lib/libenemy_detection_nodelet">
-  <class name="hop_detection/enemy_detection_nodelet" type="hop_detection::EnemyDetectionNodelet" base_class_type="nodelet::Nodelet">
+  <class name="hop_detection/EnemyDetectionNodelet" type="hop_detection::EnemyDetectionNodelet" base_class_type="nodelet::Nodelet">
   <description>
     This is my nodelet.
   </description>

@@ -9,7 +9,7 @@ ColorDetection::ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int ca
     nh_ptr_(boost::make_shared<ros::NodeHandle>(nh)),
     pnh_ptr_(boost::make_shared<ros::NodeHandle>(pnh)),
     camera_id_(cam_id),
-    name_("armor_detection/color_detection"),
+    name_("armor_detection"),
     debug_(true),
     display_(true),
     enemy_color_(EnemyColor::RED),
@@ -26,33 +26,35 @@ ColorDetection::ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int ca
 void ColorDetection::onInit()
 {
     nh_ptr_->getParam("cameras/camera_" + std::to_string(camera_id_) + "/camera_matrix", camera_matrix_);
+    std::cout << camera_matrix_[0] << std::endl;
     nh_ptr_->getParam("cameras/camera_" + std::to_string(camera_id_) + "/camera_distortion", camera_distortion_);
     pnh_ptr_->getParam(name_ + "/debug", debug_);
     pnh_ptr_->getParam(name_ + "/display", display_);
     // get armor params
     double width;
     double height;
-    pnh_ptr_->getParam("armor_size/width", width);
-    pnh_ptr_->getParam("armor_size/height", height);
+    nh_ptr_->getParam("armor_detection/armor_size/width", width);
+    std::cout << width << std::endl;
+    nh_ptr_->getParam("armor_detection/armor_size/height", height);
     solveArmorCoordinate(width, height);
     int h;
     int s;
     int v;
-    pnh_ptr_->getParam("red_range_1/lower/H", h);
-    pnh_ptr_->getParam("red_range_1/lower/S", s);
-    pnh_ptr_->getParam("red_range_1/lower/V", v);
+    nh_ptr_->getParam("armor_detection/red_range_1/lower/H", h);
+    nh_ptr_->getParam("armor_detection/red_range_1/lower/S", s);
+    nh_ptr_->getParam("armor_detection/red_range_1/lower/V", v);
     red_range_.push_back(cv::Scalar(h, s, v));
-    pnh_ptr_->getParam("red_range_1/upper/H", h);
-    pnh_ptr_->getParam("red_range_1/upper/S", s);
-    pnh_ptr_->getParam("red_range_1/upper/V", v);
+    nh_ptr_->getParam("armor_detection/red_range_1/upper/H", h);
+    nh_ptr_->getParam("armor_detection/red_range_1/upper/S", s);
+    nh_ptr_->getParam("armor_detection/red_range_1/upper/V", v);
     red_range_.push_back(cv::Scalar(h, s, v));
-    pnh_ptr_->getParam("red_range_2/lower/H", h);
-    pnh_ptr_->getParam("red_range_2/lower/S", s);
-    pnh_ptr_->getParam("red_range_2/lower/V", v);
+    nh_ptr_->getParam("armor_detection/red_range_2/lower/H", h);
+    nh_ptr_->getParam("armor_detection/red_range_2/lower/S", s);
+    nh_ptr_->getParam("armor_detection/red_range_2/lower/V", v);
     red_range_.push_back(cv::Scalar(h, s, v));
-    pnh_ptr_->getParam("red_range_2/upper/H", h);
-    pnh_ptr_->getParam("red_range_2/upper/S", s);
-    pnh_ptr_->getParam("red_range_2/upper/V", v);
+    nh_ptr_->getParam("armor_detection/red_range_2/upper/H", h);
+    nh_ptr_->getParam("armor_detection/red_range_2/upper/S", s);
+    nh_ptr_->getParam("armor_detection/red_range_2/upper/V", v);
     red_range_.push_back(cv::Scalar(h, s, v));
 }
 

@@ -3,7 +3,7 @@ enemy_detection:
         debug: true
         display: true
         threshold: 0
-        detectors: ["svms/"]
+        detectors: ["svms/enemy-back-detector.svm", "svms/enemy-right-detector.svm", "svms/enemy-left-detector.svm", "svms/enemy-front-detector.svm", "svms/enemy_detector.svm"]
 
 armor_detection:
     color_detection:

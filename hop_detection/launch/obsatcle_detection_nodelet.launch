@@ -1,16 +1,26 @@
 <launch>
-  <arg name="display" default="false" />
   
-  <node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen"/>
-
-  <node pkg="nodelet" type="nodelet" name="obstacle_detection_nodelet" args="load hd_depth/obstacle_detection_nodelet standalone_nodelet" output="screen">
-    <remap from="/depth_in" to="/zed/depth/depth_registered"/>
+    <node pkg="nodelet" type="nodelet" name="standalone_nodelet"  args="manager" output="screen"/>
+    <rosparam command="load" file="$(find hop_detection)/config/camera_params.yaml"/>
+    <rosparam command="load" file="$(find hop_detection)/config/detection_params.yaml"/>
+  <node pkg="nodelet" type="nodelet" name="enemy_detection_nodelet" args="load hop_detection/EnemyDetectionNodelet standalone_nodelet" output="screen">
+    <remap from="/depth_in" to="depth"/>
+    <remap from="/image_in" to="/usb_cam1/image_raw"/>
+    <param name="armor_detection/color_detection/display" value="true" />
   </node>  
+  
 
+  
+  <!--
+ <node name="enemy_detection_node" pkg="hop_detection" type="enemy_detection_node" output="screen" respawn="true">    
+        <remap from="/depth_in" to="depth"/>
+        <remap from="/image_in" to="/usb_cam1/image_raw"/>
+        <param name="armor_detection/color_detection/display" value="true" />
+    </node>
   <group if="$(arg display)">
     <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="1 0 0 0 0 0 1 world odom 100" /> 
     <node  pkg="rviz" type="rviz" output="screen" name="rviz_show_map" args="-d $(find hd_depth)/rviz/display_map.rviz"/>           
     <node pkg="image_view" type="image_view" name="view_depth" args="image:=/zed/depth/depth_registered" />
   </group>
-
+-->
 </launch>

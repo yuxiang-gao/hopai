@@ -19,14 +19,14 @@ target_link_libraries(libobject_detector dlib::dlib  ${OpenCV_LIBRARIES})
 cs_add_library(libarmor_detector include/color_detection/color_detection.cpp)
 target_link_libraries(libarmor_detector ${OpenCV_LIBRARIES})
 
-cs_add_library(libenemy_detection src/enemy_detection_nodelet.cpp src/enemy_detection_class.cpp)
-target_link_libraries(libenemy_detection libobject_detector libarmor_detector dlib::dlib ${OpenCV_LIBRARIES})
+cs_add_library(enemy_detection_nodelet src/enemy_detection_nodelet.cpp src/enemy_detection_class.cpp)
+target_link_libraries(enemy_detection_nodelet libobject_detector libarmor_detector dlib::dlib ${OpenCV_LIBRARIES})
 
 cs_add_executable(enemy_detection_node src/enemy_detection.cpp)
-target_link_libraries(enemy_detection_node libenemy_detection dlib::dlib ${OpenCV_LIBRARIES})
+target_link_libraries(enemy_detection_node libobject_detector libarmor_detector enemy_detection_nodelet dlib::dlib ${OpenCV_LIBRARIES})
 
 cs_install()
 
-cs_install_scripts(scripts/my_script.py)
+#cs_install_scripts(scripts/my_script.py)
 
 cs_export()

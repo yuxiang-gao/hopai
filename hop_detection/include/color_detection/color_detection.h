@@ -68,11 +68,12 @@ struct ColorDetectionParams
 	
 };
 
-class ColorDetection: public ArmorDetectionBase
+class ColorDetection
 {
 public:
     typedef boost::shared_ptr<ColorDetection> Ptr;
     ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id);
+    ~ColorDetection(){};
     void onInit();
     void setDebug(bool debug)
     {
@@ -89,11 +90,11 @@ public:
         camera_info_ = cam_info;
     }
 
-    bool updateFrame(const cv::Mat& image_in) override;
+    bool updateFrame(const cv::Mat& image_in);
 
     bool updateDepth(const cv::Mat& depth_in);
     
-    ErrorInfo detectArmor(double &distance, double &pitch, double &yaw) override;
+    ErrorInfo detectArmor(double &distance, double &pitch, double &yaw);
     
     
     cv::Mat extractRed(const cv::Mat &src);
@@ -138,10 +139,6 @@ public:
      * @param height Armor height
      */
     void solveArmorCoordinate(const float width, const float height);
-    /**
-     * @brief Destructor
-     */
-    ~ColorDetection();
 
     void drawRotatedRect(const cv::Mat &img, const cv::RotatedRect &rect, const cv::Scalar &color, int thickness) 
     {

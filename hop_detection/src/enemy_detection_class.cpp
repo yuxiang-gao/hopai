@@ -23,7 +23,7 @@ EnemyDetection::EnemyDetection (ros::NodeHandle &nh, ros::NodeHandle &pnh, const
     armor_pos_pub_ = nh_->advertise<EnemyPos>("enemy_pos", 1);
     int queue_size;
     pnh_->param("queue_size", queue_size, 5);
-    pnh_->param("use_depth", is_depth_, true);
+    pnh_->param("use_depth", is_depth_, false);
     
 
     if (is_depth_)

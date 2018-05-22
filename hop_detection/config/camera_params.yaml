@@ -1,32 +1,32 @@
 cameras:
     camera_0: #LEFT
         camera_id: 0
-        camera_matrix: []
-        camera_distortion: []
+        camera_matrix: [509.006381, 0.000000, 317.487094, 0.000000, 470.388664, 244.372754, 0.000000, 0.000000, 1.000000]
+        camera_distortion: [-0.454362, 0.159924, -0.019933, -0.005068, 0.000000]
         resolution:
             width: 640
             height: 480
 
     camera_1: #right
         camera_id: 1
-        camera_matrix: []
-        camera_distortion: []
+        camera_matrix: [489.860584, 0.000000, 285.858121, 0.000000, 458.496004, 200.753300, 0.000000, 0.000000, 1.000000]
+        camera_distortion: [-0.389146, 0.151981, 0.011648, 0.006514, 0.000000]
         resolution:
             width: 640
             height: 480
 
     camera_2: #mid
         camera_id: 2
-        camera_matrix: []
-        camera_distortion: []
+        camera_matrix: [529.752828, 0.000000, 275.816388, 0.000000, 495.017711, 280.407808, 0.000000, 0.000000, 1.000000]
+        camera_distortion: [-0.461042, 0.144007, -0.019113, 0.023122, 0.000000]
         resolution:
             width: 640
             height: 480
 
     camera_3: #ps
         camera_id: 3
-        camera_matrix: []
-        camera_distortion: []
+        camera_matrix: [546.0500834384593, 0.0, 318.26543549764034, 0.0, 545.7495208147751, 235.530988776277, 0.0, 0.0, 1.0]
+        camera_distortion: [0.07270573116068803, -0.18543929362134534, -0.0011832045804703304, -0.0034080201993029564, 0.0]
         resolution:
             width: 640
             height: 480

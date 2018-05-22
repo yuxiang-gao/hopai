@@ -16,10 +16,14 @@ ObjectDetectorClass::ObjectDetectorClass(ros::NodeHandle &nh, ros::NodeHandle &p
 
 {
     std::vector<std::string> detectors;
-        
-    pnh_ptr_->getParam(ns_ + "/display", display_);
-    pnh_ptr_->getParam(ns_ + "/detectors", detectors);
-    pnh_ptr_->getParam(ns_ + "/threshold", threshold_ );
+    detectors.push_back("svms/enemy-back-detector.svm");
+    detectors.push_back("svms/enemy-front-detector.svm");
+    detectors.push_back("svms/enemy-left-detector.svm");
+    detectors.push_back("svms/enemy-right-detector.svm");
+    detectors.push_back("svms/enemy_detector.svm");
+    nh_ptr_->getParam(ns_ + "/display", display_);
+    //nh_ptr_->getParam(ns_ + "/detectors", detectors);
+    nh_ptr_->getParam(ns_ + "/threshold", threshold_ );
 
     std::string path = ros::package::getPath("hop_detection");
     for (auto &detector : detectors)
