@@ -11,8 +11,6 @@ from hop_msgs.msg import *
 # a FSM in python. pytransitions is the package 
 # used for FSM implementation. FOr more info:
 # https://github.com/pytransitions/transitions
-
-
 # Version: 0.1
 # Author: Rui
 ##################################################
