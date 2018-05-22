@@ -5,7 +5,7 @@ import math
 import actionlib
 from transitions import Machine
 from geometry_msgs.msg import Pose2D, Point, PoseStamped
-
+from std_msgs.msg import Bool, Int32
 from nav_msgs.msg import Odometry
 from hop_msgs.msg import *
 
@@ -21,37 +21,37 @@ from hop_msgs.msg import *
 ##################################################
 class Hopai(object):
     health   = 3000
-    bonus_size = 0.58 # bonus zone side length in meter
+    #bonus_size = 0.58 # bonus zone side length in meter
     cur_pose     =[0,0,0] # x, y, theta 
     states   = [
         State(name = 'to_mid', on_enter=['to_mid_cb']),
-        State(name = 'take_buff', on_enter=['take_buff_cb']),
+        #State(name = 'take_buff', on_enter=['take_buff_cb']),
         State(name = 'engage', on_enter=['engage_cb'], on_exit=['disengage_cb']),
         State(name = 'patrol', on_enter=['patrol_cb']),
         State(name = 'runhome', on_enter=['runhome_cb'])
         ]
 
     transitions = [
-        ['reached_mid','to_mid','take_buff'],
+        #['reached_mid','to_mid','take_buff'],
         ['enemy_missing','engage','to_mid'],
-        ['enemy_missing','engage','patrol', conditions='has_bonus'],
+        ['enemy_missing','engage','patrol'], #conditions='has_bonus'],
         ['enemy_detected','to_mid','engage'],
-        ['enemy_detected','take_buff','engage'],
+        #['enemy_detected','take_buff','engage'],
         ['enemy_detected','patrol','engage'],
-        ['have_buff','take_buff','patrol'],
+        #['have_buff','take_buff','patrol'],
         ['taking_damage','to_mid','engage'],
-        ['taking_damage','take_buff','engage'],
+        #['taking_damage','take_buff','engage'],
         ['taking_damage','patrol','engage']
     ]
 
     # Temporary goal publisher; should be a client to actionlib localization 
     goal_pub   = rospy.Publisher('move_base_simple/goal', PoseStamped, queue_size=10)
-    
-    
+    mode_pub   = rospy.Publisher('chassis_mode',intInt, queue_size=1)
+
     def __init__(self,name='Hopai'):
         # obervation 
         self.name       = name
-        self.bonus      = False
+        #self.bonus      = False
         self.enemy      = False  # Robot
         self.ene_camera = 2
         self.target     = False  # Armor
@@ -64,87 +64,110 @@ class Hopai(object):
         self.machine    = Machine(model=self, states=Hopai.states, transitions=Hopai.transitions, initial='to_mid')
         
         # update observation
-        
-        self.pos_listener    = tf.TransformListener()
+        self.pos_listener  = tf.TransformListener()
         try:
-            (trans,rot) = listener.lookupTransform('map', 'base_link', rospy.Time(0))
+            (trans,rot) = listener.lookupTransform('base_link', 'map', rospy.Time(0))
         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
             continue
         self.cur_pose   = [trans[0],trans[1],rot[2]]
-        self.hp_sub     = rospy.Subscriber('self_hp',int,self.self_hp_update)
-        
-        #########################################################
-        #### TO DO   MESSAGE TYPE !!!!! more subscribption ######
-        self.enemy_sub0  = rospy.Subscriber('enemy_cam0',,self.enemy_update0)
-        self.enemy_sub1  = rospy.Subscriber('enemy_cam1',,self.enemy_update1)
-        self.enemy_sub2  = rospy.Subscriber('enemy_prim',,self.enemy_update2)
-        self.target_sub0 = rospu.Subscriber('target_cam0',,self.target_update0)
-        self.target_sub1 = rospu.Subscriber('target1_cam1',,self.target_update1)
-        self.target_sub2 = rospu.Subscriber('target2_prim',,self.target_update2)
-        
-        ###################################################
+
+        self.hp_sub     = rospy.Subscriber('self_hp',Int32,self.self_hp_update)
+        self.enemy_sub0 = rospy.Subscriber('enemy_left',Bool,self.enemy_update0)
+        self.enemy_sub1 = rospy.Subscriber('enemy_right',Bool,self.enemy_update1)
+        #self.enemy_subp  = rospy.Subscriber('enemy_prim',,self.enemy_update2)
+        self.target_sub2= rospy.Subscriber('target_mid',EnemyPose,self.target_update2)
+        self.hit_sub    = rospy.Subscriber('hit_armor',Int32,self.hit_update)
         # update fsm
         self.update()
 
         # spin
         rospy.spin()
 
+
+    def to_pose_stamped(pos):
+        pose = PoseStamped()
+        pose.header.stamp = rospy.Time.now()
+        pose.header.frame_id = "map"
+        pose.pose.position.x = pos[0]
+        pose.pose.position.y = pos[1]
+        pose.pose.position.z = 0
+
+        quaternion = tf.transformations.quaternion_from_euler(0, 0, pos[2])
+        pose.pose.orientation.x = quaternion[0]
+        pose.pose.orientation.y = quaternion[1]
+        pose.pose.orientation.z = quaternion[2]
+        pose.pose.orientation.w = quaternion[3]
+        return pose
+
+    def finished(vec1,vec2):
+        diff1 = math.fabs(vec1[0]-vec2[0])
+        diff2 = math.fabs(vec1[1]-vec2[1])
+        diff3 = math.fabs(vec1[2]-vec2[2])
+        if diff1 < 0.1 and diff2 < 0.2 and diff3 < 0.174533:
+            return False
+
     # Conditional Check
-    def has_bonus(self):
-        return self.bonus
+    #def has_bonus(self):
+    #    return self.bonus
+
 
     def if_enemy_detected(self):
         return self.enemy
         
     # if self is in the bonus zone
-    def if_reached_mid(self):
-        if self.cur_pose(0) >= 4-bonus_size && self.cur_pose(0) <= 4+bonus_size:
-            if self.cur_pose(1) >= 3-bonus_size && self.cur_pose(1) <= 3+bonus_size:
-                return True
-        else:
-            return False
+    #def if_reached_mid(self):
+    #    if self.cur_pose(0) >= 4-bonus_size && self.cur_pose(0) <= 4+bonus_size:
+    #        if self.cur_pose(1) >= 3-bonus_size && self.cur_pose(1) <= 3+bonus_size:
+    #            return True
+    #    else:
+    #        return False
 
-#################################################
-#####    TO DO
-###################################################
+
     def if_taking_damage(self):
-        pass #TO DO
-####################################################
-##################################################
-#####      TO DO
-###############################################
+        return self.being_hit
+
+    # Action units
+
     def navigate(self):
-        client = actionlib.SimpleActionClient('goal_pose',LocalizationAction)
-        client.wait_for_server()
-        goal = 
-        client.send_goal(goal)
+        goal  = self.goal_pose
+        post_stamp_goal = to_pose_stamped(goal)
+        pose_pub.publish(post_stamp_goal)
+        
 
-#######################################################
-########################################################
 
-    # Action Unit
     def idle(self):
         pass
 
 
-##################################################
+####################################################
 ####   TO  DO 
 ####################################################
     def turn_to_target(self):
         self.goal_pose = self.cur_pose
-        if ene_camera = 0
-        self.goal_pose[2] += 0.785398
-        if ene_camera = 1
-        self.goal_pose[2] += 0.785398
-        if 
+        if not self.enemy:
+            if ene_camera = 0:
+                self.goal_pose[2] += 0.785398
+            if ene_camera = 1:
+                self.goal_pose[2] -= 0.785398
+
+        else if self.being_hit:
+            if self.hit_armor == 1:
+                pass
+            else if self.hit_armor == 0:
+                self.goal_pose[2] -= 1.5708
+            else if self.hit_armor == 2:
+                self.goal_pose[2] += 1.5708
+            else if self.hit_armor == 3:
+                self.goal_pose[2] += 3.1416
+        self.navigate()
 
 
     def start_dodge(self):
-        
+        self.mode_pub.publish(4)
+
     
     def stop_dodge(self):
-        
-###################################################
+        self.mode_pub.publish(5)
 ##################################################
 
     # Obervation Callbacks
@@ -162,23 +185,18 @@ class Hopai(object):
         pass
 ###############################################
 ###############################################
-
     # State Behavior
     
     def to_mid_cb(self):
-        self.goal_pose = [4.5,3.5,0]
+        self.goal_pose = [2.6,1.6,1.5708]
         self.navigate()
 
-    
-    def take_buff_cb(self):
-        self.goal_pose = [4.5,3.5,0]
-        self.navigate()
-        self.idle()
+    #def take_buff_cb(self):
+    #    self.goal_pose = [4.5,3.5,0]
+    #    self.navigate()
+    #    self.idle()
 
 
-######################################
-######      TO DO 
-######################################
     def engage_cb(self):
         self.turn_to_target()
         self.start_dodge()
@@ -193,10 +211,10 @@ class Hopai(object):
 #########################################
     def patrol_cb(self):
         # goal 1
-        self.goal_pose = [4.5,3.5,0]
+        self.goal_pose = [2.6,1.6,1.5708]
         self.navigate()
         # goal 2
-        self.goal_pose = [4.5,3.5,0]
+        self.goal_pose = [4.5,3.5,-0.5]
         self.navigate()
         # goal 3
         self.goal_pose = [4.5,3.5,0]
@@ -225,17 +243,16 @@ class Hopai(object):
         # update cur_pose
         
         # 
-        if self.if_enemy_detected():
-            self.enemy_detected()
+        if not self.is_engage():
+            if self.if_enemy_detected():
+                self.enemy_detected()
         else:
-            self.enemy_missing() 
+            if not self.if_enemy_detected():
+                self.enemy_missing()
 
-        if self.if_reached_mid():
-            self.reached_mid()
 
-        if self.has_buff():
-            self.have_buff()
-        
+        #if self.has_buff():
+        #    self.have_buff()        
         if self.if_taking_damage():
             self.taking_damage()
 

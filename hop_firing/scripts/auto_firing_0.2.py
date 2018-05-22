@@ -1,5 +1,4 @@
 import rospy
-from fiducial_msgs.msg import FiducialTransformArray
 from nav_msgs.msg import Odometry
 from std_msgs.msg import UInt8MultiArray
 from hop_msgs.msg import *
@@ -36,7 +35,7 @@ class GimbalAiming:
         self._init_cnt 		= 0
         while not rospy.is_shutdown():
             gimbal_angle 	= GimbalAngle()
-            shoot_msg 		= UInt8MultiArray(data=[0, 0, 1, 100])
+            shoot_msg 		= UInt8MultiArray(data=[0, 0, 1, 1500])
             
             if self._init_cnt < 50 and self.enable_shoot:
                 self._init_cnt += 1

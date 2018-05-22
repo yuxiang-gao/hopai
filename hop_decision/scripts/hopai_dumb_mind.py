@@ -18,6 +18,7 @@ from hop_msgs.msg import *
 # Version: 0.1
 # Author: Rui
 ##################################################
+
 def to_pose_stamped(pos):
         pose = PoseStamped()
         pose.header.stamp = rospy.Time.now()
