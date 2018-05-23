@@ -1,5 +1,5 @@
 <launch>
-
+    <!--
   <node name="cam_right" pkg="usb_cam" type="usb_cam_node" output="log" >
     <param name="video_device" value="/dev/video0" />
     <param name="image_width" value="320" />
@@ -19,7 +19,7 @@
     <param name="camera_name" value="camera_left" />
     <param name="io_method" value="mmap"/>
   </node>
-<!--
+
   <node name="cam_mid" pkg="usb_cam" type="usb_cam_node" output="log" >
     <param name="video_device" value="/dev/video0" />
     <param name="image_width" value="640" />

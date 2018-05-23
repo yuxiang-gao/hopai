@@ -1,5 +1,6 @@
 #include "hop_detection/enemy_detection_class.h"
 #include <std_msgs/Bool.h>
+#include <geometry_msgs/Point.h>
 
 #define DEBUG 1
 #if DEBUG
@@ -24,7 +25,8 @@ EnemyDetection::EnemyDetection (ros::NodeHandle &nh, ros::NodeHandle &pnh, const
         color_detect_ = boost::make_shared<ColorDetection>(*nh_, *pnh_, 0);
 
     enemy_pos_pub_ = nh_->advertise<std_msgs::Bool>("enemy", 1);
-    armor_pos_pub_ = nh_->advertise<EnemyPos>("enemy_pos", 1);
+    armor_pos_pub_ = nh_->advertise<hop_msgs::EnemyPos>("enemy_position", 1);
+    target_pub_ = nh_->advertise<geometry_msgs::Point>("target_point", 1);
     int queue_size;
     
     pnh_->param("queue_size", queue_size, 5);
@@ -179,12 +181,19 @@ void EnemyDetection::process_one(const sensor_msgs::ImageConstPtr& msg, const se
 	        if (color_detect_->detectArmor(distance, pitch, yaw).IsOK())
 	        {
 	            //TODO
-	            EnemyPos pos_msg;
+                hop_msgs::EnemyPos pos_msg;
 	            pos_msg.enemy_dist = distance;
 	            pos_msg.enemy_pitch = pitch;
 	            pos_msg.enemy_yaw = yaw;
-	            enemy_pos_pub_.publish(pos_msg);
+	            armor_pos_pub_.publish(pos_msg);
 	        }
+	        double x_ratio,  y_ratio,  area;
+	        color_detect_->detectTarget(x_ratio, y_ratio, area);
+	        geometry_msgs::Point p;
+	        p.x = x_ratio;
+	        p.y = y_ratio;
+	        p.z = area;
+	        target_pub_.publish(p);
 		}
 		else
 		{

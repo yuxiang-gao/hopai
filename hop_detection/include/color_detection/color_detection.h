@@ -75,6 +75,8 @@ public:
     ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int cam_id);
     ~ColorDetection(){};
     void onInit();
+    void calcTargetInfo(const ArmorInfo & armor, double & x_ratio, double& y_ratio, double &area);
+    ErrorInfo detectTarget(double & x_ratio, double& y_ratio, double &area);
     void setDebug(bool debug)
     {
         debug_ = debug;

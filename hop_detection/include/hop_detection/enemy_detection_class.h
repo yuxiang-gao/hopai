@@ -44,7 +44,7 @@
 // #include <pcl/point_cloud.h>
 // #include <pcl/point_types.h>
 #include "hop_msgs/EnemyPos.h"
-#include "hop_msgs/EnemyHOGPos.h"
+//#include "hop_msgs/EnemyHOGPos.h"
 #include "object_detection/object_detector_class.h"
 #include "color_detection/color_detection.h"
 #include <boost/make_shared.hpp>
@@ -78,6 +78,7 @@ private:
 
     ros::Publisher enemy_pos_pub_;
     ros::Publisher armor_pos_pub_;
+    ros::Publisher target_pub_;
 
     std::string name_;
 
