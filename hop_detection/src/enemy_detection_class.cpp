@@ -17,8 +17,11 @@ EnemyDetection::EnemyDetection (ros::NodeHandle &nh, ros::NodeHandle &pnh, const
 {
     ROS_DEBUG_ONCE_NAMED(name_, "Starting obstacle avoidance.");
     it_ = boost::make_shared<image_transport::ImageTransport>(*nh_);
-    object_detect_ = boost::make_shared<ObjectDetectorClass>(*nh_, *pnh_, 0);
-    color_detect_ = boost::make_shared<ColorDetection>(*nh_, *pnh_, 0);
+    pnh_->getParam("side_cam", side_cam);
+    if (side_cam)
+        object_detect_ = boost::make_shared<ObjectDetectorClass>(*nh_, *pnh_, 0);
+    else
+        color_detect_ = boost::make_shared<ColorDetection>(*nh_, *pnh_, 0);
 
     enemy_pos_pub_ = nh_->advertise<std_msgs::Bool>("enemy", 1);
     armor_pos_pub_ = nh_->advertise<EnemyPos>("enemy_pos", 1);
@@ -26,7 +29,6 @@ EnemyDetection::EnemyDetection (ros::NodeHandle &nh, ros::NodeHandle &pnh, const
     
     pnh_->param("queue_size", queue_size, 5);
     pnh_->param("use_depth", is_depth_, false);
-    pnh_->getParam("side_cam", side_cam);
 
     if (is_depth_)
     {
@@ -165,7 +167,7 @@ void EnemyDetection::process_one(const sensor_msgs::ImageConstPtr& msg, const se
     try 
     {
         src_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
-        color_detect_->updateFrame(src_ptr->image);
+        
         if (is_depth_ && depth_msg != NULL) 
         {
             depth_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_16UC1);
@@ -173,6 +175,7 @@ void EnemyDetection::process_one(const sensor_msgs::ImageConstPtr& msg, const se
         }
         if (!side_cam)
         {
+			color_detect_->updateFrame(src_ptr->image);
 	        if (color_detect_->detectArmor(distance, pitch, yaw).IsOK())
 	        {
 	            //TODO

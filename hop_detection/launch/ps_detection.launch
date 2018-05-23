@@ -15,7 +15,7 @@
     <param name="side_cam" value="true" />
   </node> 
   <node pkg="hop_detection" type="enemy_detection_test" name="enemy_detection_mid" output="screen">
-    <remap from="/image_in" to="/primesense/rgb/image_raw"/>
+      <remap from="/image_in" to="/primesense/rgb/image_raw"/>
     <param name="armor_detection/color_detection/display" value="true" />
     <param name="side_cam" value="false" />
   </node> 

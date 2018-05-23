@@ -18,13 +18,13 @@
             See camera_info_manager docs for calibration URL details." />
   <arg name="depth_camera_info_url" default="" />
 
-  <arg name="depth_registration" default="true"
+  <arg name="depth_registration" default="false"
        doc="Hardware depth registration" />
 
   <!-- Driver parameters -->
-  <arg name="color_depth_synchronization"     default="true" />
-  <arg name="auto_exposure"                   default="true" />
-  <arg name="auto_white_balance"              default="true" />
+  <arg name="color_depth_synchronization"     default="false" />
+  <arg name="auto_exposure"                   default="false" />
+  <arg name="auto_white_balance"              default="false" />
 
   <!-- Arguments for remapping all device namespaces -->
   <arg name="rgb"              default="rgb" />

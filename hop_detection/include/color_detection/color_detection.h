@@ -151,8 +151,8 @@ public:
 
 private:
     int camera_id_;
-    std::vector<double> camera_matrix_;
-    std::vector<double> camera_distortion_;
+    std::vector<float> camera_matrix_;
+    std::vector<float> camera_distortion_;
     dynamic_reconfigure::Server<hop_detection::HopDetectionConfig> dyn_cfg_server_;
     dynamic_reconfigure::Server<hop_detection::HopDetectionConfig>::CallbackType dyn_cfg_f_;
     void dynCfgCallback(hop_detection::HopDetectionConfig& config, uint32_t level);

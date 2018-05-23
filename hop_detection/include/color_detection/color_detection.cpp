@@ -10,8 +10,8 @@ ColorDetection::ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int ca
     pnh_ptr_(boost::make_shared<ros::NodeHandle>(pnh)),
     camera_id_(cam_id),
     name_("armor_detection"),
-    debug_(true),
-    display_(true),
+    //debug_(true),
+    //display_(true),
     enemy_color_(EnemyColor::RED),
     dyn_cfg_f_(boost::bind(&ColorDetection::dynCfgCallback, this, _1, _2))
 {
@@ -25,11 +25,11 @@ ColorDetection::ColorDetection(ros::NodeHandle &nh, ros::NodeHandle &pnh, int ca
 
 void ColorDetection::onInit()
 {
-    nh_ptr_->getParam("cameras/camera_" + std::to_string(camera_id_) + "/camera_matrix", camera_matrix_);
+    nh_ptr_->getParam("cameras/camera_2/camera_matrix", camera_matrix_);
     //std::cout << camera_matrix_[0] << std::endl;
-    nh_ptr_->getParam("cameras/camera_" + std::to_string(camera_id_) + "/camera_distortion", camera_distortion_);
-    pnh_ptr_->getParam(name_ + "/debug", debug_);
-    pnh_ptr_->getParam(name_ + "/display", display_);
+    nh_ptr_->getParam("cameras/camera_2/camera_distortion", camera_distortion_);
+    nh_ptr_->getParam(name_ + "/debug", debug_);
+    nh_ptr_->getParam(name_ + "/display", display_);
     // get armor params
     double width;
     double height;
@@ -134,9 +134,9 @@ ErrorInfo ColorDetection::detectArmor(double &distance, double &pitch, double &y
     std::vector<ArmorInfo> armors;
 
     detectLights(src_img_, lights);
-    filterLights(lights);
+    //filterLights(lights);
     possibleArmors(lights, armors);
-    filterArmors(armors);
+    //filterArmors(armors);
 
     if (!armors.empty()) 
     {
@@ -145,8 +145,8 @@ ErrorInfo ColorDetection::detectArmor(double &distance, double &pitch, double &y
     }
     else
         return ErrorInfo(hop_detection::common::Error);
-    //lights_.clear();
-    //armors_.clear();
+    lights.clear();
+    armors.clear();
     
     if (debug_)
         TIMER_END(detectArmor);
@@ -187,7 +187,7 @@ void ColorDetection::detectLights(const cv::Mat &src, std::vector<cv::RotatedRec
         lights.push_back(single_light);
         if (debug_)
         {
-            drawRotatedRect(show_lights_before_filter_, single_light, cv::Scalar(100), 2);
+            drawRotatedRect(show_lights_before_filter_, single_light, cv::Scalar(50), 2);
         }
     }
     if (debug_) cv::imshow("lights_before_filter", show_lights_before_filter_);
@@ -211,7 +211,7 @@ void ColorDetection::filterLights(std::vector<cv::RotatedRect> &lights)
             light.size.area() <= params_.light_max_area) {
         rects.push_back(light);
         if (debug_)
-            drawRotatedRect(show_lights_after_filter_, light, cv::Scalar(100), 2);
+            drawRotatedRect(show_lights_after_filter_, light, cv::Scalar(50), 2);
         }
     }
     if (debug_)
@@ -231,7 +231,7 @@ void ColorDetection::possibleArmors(const std::vector<cv::RotatedRect> &lights, 
             auto lights_dis = std::sqrt((light1.center.x - light2.center.x) * (light1.center.x - light2.center.x) +
                 (light1.center.y - light2.center.y) * (light1.center.y - light2.center.y));
             auto center_angle =
-                std::atan((light1.center.y - light2.center.y) / (light1.center.x - light2.center.x)) * 180 / CV_PI;
+                std::atan2((light1.center.y - light2.center.y), (light1.center.x - light2.center.x)) * 180 / CV_PI;
 
             cv::RotatedRect rect;
             rect.angle = static_cast<float>(center_angle);
@@ -242,13 +242,17 @@ void ColorDetection::possibleArmors(const std::vector<cv::RotatedRect> &lights, 
 
             rect.size.width = std::max<float>(armor_width, armor_height);
             rect.size.height = std::min<float>(armor_width, armor_height);
-
+			std::cout << "angle_diff: " << std::abs(light1.angle - light2.angle) << std::endl;
+			std::cout << "center_angle: " << std::abs(center_angle) << std::endl;
+			std::cout << "aspect ratio: " << rect.size.width / (float) (rect.size.height) << std::endl;
+			std::cout <<"area: " << rect.size.area() << std::endl;
             if (std::abs(light1.angle - light2.angle) < params_.light_max_angle_diff &&
                 std::abs(center_angle) < params_.armor_max_angle &&
+                !std::isnan(center_angle)&&
                 rect.size.width / (float) (rect.size.height) < params_.armor_max_aspect_ratio &&
                 rect.size.area() > params_.armor_min_area &&
-                hsv_img_.at<cv::Vec3b>(static_cast<int>(rect.center.y), static_cast<int>(rect.center.x))[2]
-                    < params_.armor_max_pixel_val)   // value entry of hsv, shoudl be low
+                gray_img_.at<uchar>(static_cast<int>(rect.center.y), static_cast<int>(rect.center.x))
+                   < params_.armor_max_pixel_val)   // value entry of hsv, shoudl be low
             {
                 std::vector<cv::Point2f> armor_points;
                 if (light1.center.x < light2.center.x) {
@@ -257,9 +261,16 @@ void ColorDetection::possibleArmors(const std::vector<cv::RotatedRect> &lights, 
                 } else {
                     calcArmorInfo(armor_points, light2, light1);
                 }
+                
+                    for (auto& a:armor_points)
+	{
+		std::cout <<a.x << a.y<<std::endl;
+	}
                 armors.emplace_back(ArmorInfo(rect, armor_points));
+                std::cout <<"111111" <<std::endl;
                 if (debug_)
                     drawRotatedRect(show_armors_befor_filter_, rect, cv::Scalar(100), 2);
+                std::cout <<"2222" <<std::endl;
                 armor_points.clear();
             }
         }
@@ -333,14 +344,16 @@ void ColorDetection::filterArmors(std::vector<ArmorInfo> &armors)
 
 ArmorInfo ColorDetection::selectFinalArmor(std::vector<ArmorInfo> &armors)
 {
+	std::cout << "select" <<std::endl;
     std::sort(armors.begin(),
                 armors.end(),
                 [](const ArmorInfo &p1, const ArmorInfo &p2) { return p1.rect.size.area() > p2.rect.size.area(); });
 
     if (debug_) {
-        drawRotatedRect(src_img_, armors[0].rect, cv::Scalar(100), 2);
-        cv::imshow("relust_img_", src_img_);
+        //drawRotatedRect(src_img_, armors[0].rect, cv::Scalar(100, 100, 100), 2);
+        //cv::imshow("relust_img_", src_img_);
     }
+    std::cout << "select" <<std::endl;
     return armors[0];
 }
 
@@ -350,15 +363,58 @@ void ColorDetection::calcControlInfo(const ArmorInfo & armor,
                         double &yaw,
                         double bullet_speed)
 {
+	
     cv::Mat rvec;
     cv::Mat tvec;
+    std::cout <<armor.vertex.size() <<std::endl;
+    for (auto& a:armor.vertex)
+	{
+		std::cout <<a.x << a.y<<std::endl;
+	}
+	cv::Point2f pts[4];
+	std::vector<cv::Point2f> armor_vert;
+	armor.rect.points(pts);
+	    for (auto& a:armor.vertex)
+	{
+		std::cout <<a.x << a.y<<std::endl;
+		armor_vert.push_back(a);
+	}
+	    for (auto& a:armor_points_)
+	{
+		std::cout <<a.x <<" "<< a.y<<std::endl;
+		//rmor_vert.push_back(a);
+	}	
+    //for (auto& a:camera_matrix_)
+	//{
+		//a = (double)a;
+		//std::cout <<a <<std::endl;
+	//}
+	
+	//for (auto& a:camera_distortion_)
+	//{
+		//a = (double)a;
+		//std::cout <<a <<std::endl;
+	//}
+	
+	cv::Mat_<float> intrinsic(camera_matrix_);
+    intrinsic = intrinsic.reshape(3, 3);
+    
+    
+    
+    std::cout <<intrinsic << std::endl;
+		
+    try{
     cv::solvePnP(armor_points_,
-                armor.vertex,
-                camera_matrix_,
+                armor.vertex,//armor_vert,//
+                intrinsic,
                 camera_distortion_,
                 rvec,
                 tvec);
-
+			}
+	catch (cv::Exception& e )
+	{const char* err_msg = e.what();
+    std::cout << "exception caught: " << err_msg << std::endl;}
+	std::cout<< "calc control" <<std::endl;
     double fly_time = tvec.at<double>(2) / 1000.0 / bullet_speed;
     double gravity_offset = 0.5 * 9.8 * fly_time * fly_time * 1000;
     const double gimble_offset = 3.3;
@@ -373,17 +429,20 @@ void ColorDetection::calcControlInfo(const ArmorInfo & armor,
     pitch = pitch * 180 / M_PI;
     yaw   = yaw * 180 / M_PI;
 
-    if (depth_updated_)
-    {
-        distance = (double)(depth_img_.ptr<float> ( (int)armor.rect.center.x )[(int)armor.rect.center.y]) / 1000; 
-        depth_updated_ = false;
-    }
-    else
-        distance = sqrt(tvec.at<double>(0)*tvec.at<double>(0) + tvec.at<double>(2)*tvec.at<double>(2));
+    //if (depth_updated_)
+    //{
+        //distance = (double)(depth_img_.ptr<float> ( (int)armor.rect.center.x )[(int)armor.rect.center.y]) / 1000; 
+        //depth_updated_ = false;
+    //}
+    //else
+    distance = sqrt(tvec.at<double>(0)*tvec.at<double>(0) + tvec.at<double>(2)*tvec.at<double>(2));
+        
+    std::cout<< "calc control " <<distance << " " << pitch << " " << yaw <<std::endl;
 }
 
 void ColorDetection::calcArmorInfo(std::vector<cv::Point2f> &armor_points, cv::RotatedRect left_light, cv::RotatedRect right_light)
 {
+	std::cout<< "calc" << std::endl;
     cv::Point2f left_points[4], right_points[4];
     left_light.points(left_points);
     right_light.points(right_points);
@@ -409,6 +468,7 @@ void ColorDetection::calcArmorInfo(std::vector<cv::Point2f> &armor_points, cv::R
     armor_points.push_back(right_lu);
     armor_points.push_back(right_ld);
     armor_points.push_back(lift_rd);
+    std::cout<< "calc" << std::endl;
 }
 
 void ColorDetection::solveArmorCoordinate(const float width, const float height) 
