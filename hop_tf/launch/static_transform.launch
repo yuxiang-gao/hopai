@@ -1,0 +1,21 @@
+<launch>
+<node pkg="tf" type="static_transform_publisher" 
+    name="base_lidar" 
+    args="0 0 0.05 0 0 3.1415926 base_link lidar_link 10" />
+
+<node pkg="tf" type="static_transform_publisher" 
+    name="base_camera0" 
+    args="0 0.15 0.3 -0.785398 0 -1.74533 base_link camera0_link 10" />
+
+<node pkg="tf" type="static_transform_publisher" 
+    name="base_camera1" 
+    args="0 -0.15 0.3 -2.35619 0 -1.74533 base_link camera1_link 10" />
+
+<node pkg="tf" type="static_transform_publisher" 
+    name="gimbal_camera2" 
+    args="0 0 0.08 -1.5708 0 -1.5708 gimbal_link camera2_link 10" />
+
+<node pkg="tf" type="static_transform_publisher" 
+    name="base_camera3" 
+    args="0.16 -0.03 0.09 -1.5708 0 -1.5708 base_link camera3_link 10" />
+</launch>
