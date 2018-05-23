@@ -1,0 +1,13 @@
+0000000000000000000000000000000000000000 2cf5b3d436ab31c997c07c19eaeb68607b6ba343 DavidGogh <davidgogh96@gmail.com> 1524155371 -0400	commit (initial): init
+2cf5b3d436ab31c997c07c19eaeb68607b6ba343 bdb95c1246ea9cf117b60d64847111fee7c6d3ce DavidGogh <davidgogh96@gmail.com> 1526356899 -0400	commit: launch files
+bdb95c1246ea9cf117b60d64847111fee7c6d3ce c604a80157fb0a3943fdf98cc5a0184305fa5184 DavidGogh <davidgogh96@gmail.com> 1526361263 -0400	commit: add msgs
+c604a80157fb0a3943fdf98cc5a0184305fa5184 bf9c5e601a24b4d8055f4e913ef5b5f04a1d7c59 DavidGogh <davidgogh96@gmail.com> 1526442564 -0400	commit: dlib svm
+bf9c5e601a24b4d8055f4e913ef5b5f04a1d7c59 8eb50bca3973fc52d4601f5f71a06717ee613967 DavidGogh <davidgogh96@gmail.com> 1526591430 -0400	pull: Fast-forward
+8eb50bca3973fc52d4601f5f71a06717ee613967 3bf2884aa3abb9485c9156405e34336c85de6e2e DavidGogh <davidgogh96@gmail.com> 1526856065 -0400	commit: debugging
+3bf2884aa3abb9485c9156405e34336c85de6e2e 0cc79a8be2adbffd5612d3d92c2c765fe1b91262 DavidGogh <davidgogh96@gmail.com> 1526930300 -0400	commit: build pass
+0cc79a8be2adbffd5612d3d92c2c765fe1b91262 69ed50ed73c4d099ba8abeb080465e7838af6c00 DavidGogh <davidgogh96@gmail.com> 1526994586 -0400	commit: nodelet not running
+69ed50ed73c4d099ba8abeb080465e7838af6c00 d1c4e24dbe6af8268997a9ec0c246570b0ed0da7 DavidGogh <davidgogh96@gmail.com> 1527001131 -0400	commit: add node
+d1c4e24dbe6af8268997a9ec0c246570b0ed0da7 0e1e4111087a320c3c6898ee5d620381eac43e94 DavidGogh <davidgogh96@gmail.com> 1527019252 -0400	commit: working git add .!
+0e1e4111087a320c3c6898ee5d620381eac43e94 45996b1bff80b7710bca62ab337d6538669e5c2f DavidGogh <davidgogh96@gmail.com> 1527035393 -0400	commit: v0.5
+45996b1bff80b7710bca62ab337d6538669e5c2f 455f53f756214527aa81209f9676b21d1ba803d7 DavidGogh <davidgogh96@gmail.com> 1527035442 -0400	merge origin/tf: Merge made by the 'recursive' strategy.
+455f53f756214527aa81209f9676b21d1ba803d7 336fdd93208aeb664e209a75ebaf115662c374ba DavidGogh <davidgogh96@gmail.com> 1527100439 -0400	commit: solvepnp prob;em
